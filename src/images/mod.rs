@@ -1,7 +1,7 @@
 pub mod monochrome;
+pub mod pdf;
 pub mod reverse_print;
 pub mod scaled;
-pub mod pdf;
 
 use image::Rgba;
 

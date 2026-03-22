@@ -1,5 +1,5 @@
-use labelize::EplParser;
 use labelize::elements::label_element::LabelElement;
+use labelize::EplParser;
 
 fn parse(epl: &str) -> Vec<labelize::LabelInfo> {
     let parser = EplParser::new();

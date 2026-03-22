@@ -1,5 +1,5 @@
-use image::RgbaImage;
 use super::bit_matrix::BitMatrix;
+use image::RgbaImage;
 
 // Interleaved 2 of 5 patterns: each digit is encoded as 5 bars (2 wide, 3 narrow)
 static DIGIT_PATTERNS: [[u8; 5]; 10] = [
@@ -15,8 +15,15 @@ static DIGIT_PATTERNS: [[u8; 5]; 10] = [
     [0, 1, 0, 1, 0], // 9: NWNWN
 ];
 
-pub fn encode(content: &str, height: i32, wide_bar_ratio: i32, narrow_bar: i32, print_check_digit: bool) -> Result<RgbaImage, String> {
-    let mut digits: Vec<u8> = content.chars()
+pub fn encode(
+    content: &str,
+    height: i32,
+    wide_bar_ratio: i32,
+    narrow_bar: i32,
+    print_check_digit: bool,
+) -> Result<RgbaImage, String> {
+    let mut digits: Vec<u8> = content
+        .chars()
         .filter(|c| c.is_ascii_digit())
         .map(|c| c as u8 - b'0')
         .collect();
@@ -26,7 +33,7 @@ pub fn encode(content: &str, height: i32, wide_bar_ratio: i32, narrow_bar: i32, 
     }
 
     // Calculate check digit if needed
-    if print_check_digit || digits.len() % 2 != 0 {
+    if print_check_digit || !digits.len().is_multiple_of(2) {
         let mut sum = 0u32;
         for (i, &d) in digits.iter().enumerate() {
             if i % 2 == 0 {
@@ -40,7 +47,7 @@ pub fn encode(content: &str, height: i32, wide_bar_ratio: i32, narrow_bar: i32, 
     }
 
     // Pad to even length
-    if digits.len() % 2 != 0 {
+    if !digits.len().is_multiple_of(2) {
         digits.insert(0, 0);
     }
 
@@ -60,9 +67,11 @@ pub fn encode(content: &str, height: i32, wide_bar_ratio: i32, narrow_bar: i32, 
     let mut pos = 0;
 
     // Start pattern: narrow bar, narrow space, narrow bar, narrow space
-    bm.set_range(pos, narrow, true); pos += narrow;
+    bm.set_range(pos, narrow, true);
+    pos += narrow;
     pos += narrow; // space
-    bm.set_range(pos, narrow, true); pos += narrow;
+    bm.set_range(pos, narrow, true);
+    pos += narrow;
     pos += narrow; // space
 
     // Encode pairs
@@ -83,7 +92,8 @@ pub fn encode(content: &str, height: i32, wide_bar_ratio: i32, narrow_bar: i32, 
     }
 
     // Stop pattern: wide bar, narrow space, narrow bar
-    bm.set_range(pos, wide, true); pos += wide;
+    bm.set_range(pos, wide, true);
+    pos += wide;
     pos += narrow; // space
     bm.set_range(pos, narrow, true);
 

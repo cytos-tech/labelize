@@ -1,7 +1,7 @@
-use image::RgbaImage;
-use std::io::Write;
 use crate::elements::drawer_options::DrawerOptions;
 use crate::error::LabelizeError;
+use image::RgbaImage;
+use std::io::Write;
 
 pub fn encode_pdf(
     img: &RgbaImage,
@@ -13,8 +13,8 @@ pub fn encode_pdf(
     crate::images::monochrome::encode_png(img, &mut png_buf)?;
 
     // Create PDF with lopdf
-    use lopdf::{Document, Object, Stream};
     use lopdf::dictionary;
+    use lopdf::{Document, Object, Stream};
 
     let width_pt = opts.label_width_mm * 2.834645669; // mm to pt
     let height_pt = opts.label_height_mm * 2.834645669;
@@ -47,10 +47,7 @@ pub fn encode_pdf(
     };
 
     // Content stream: draw the image scaled to page size
-    let content = format!(
-        "q {} 0 0 {} 0 0 cm /Im1 Do Q",
-        width_pt, height_pt
-    );
+    let content = format!("q {} 0 0 {} 0 0 cm /Im1 Do Q", width_pt, height_pt);
     let content_stream = Stream::new(dictionary! {}, content.into_bytes());
     let content_id = doc.add_object(content_stream);
 

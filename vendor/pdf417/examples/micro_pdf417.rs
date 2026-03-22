@@ -13,8 +13,9 @@ const H: usize = m_pdf417_height!(ROWS);
 
 fn main() {
     let variant = V.unwrap();
-    let mut input = [0u16; (COLS*ROWS) as usize];
-    PDF417Encoder::new(&mut input, true).append_num(12345678)
+    let mut input = [0u16; (COLS * ROWS) as usize];
+    PDF417Encoder::new(&mut input, true)
+        .append_num(12345678)
         .seal(variant);
 
     let mut storage = [false; W * H];
@@ -22,7 +23,7 @@ fn main() {
     pdf417.render(&mut storage[..]);
 
     let mut col = 0;
-    for _ in 0..((PADDING+1)/2) {
+    for _ in 0..((PADDING + 1) / 2) {
         println!("{}", str::repeat(WHITE, W + PADDING * 2));
     }
     print!("{}", str::repeat(WHITE, PADDING));
@@ -35,7 +36,7 @@ fn main() {
         }
     }
     println!("{}", str::repeat(WHITE, W + PADDING));
-    for _ in 0..((PADDING-1)/2) {
+    for _ in 0..((PADDING - 1) / 2) {
         println!("{}", str::repeat(WHITE, W + PADDING * 2));
     }
     println!("\x1B[0m");

@@ -69,11 +69,7 @@ pub fn labelary_render(
         .ok()?;
 
     if !resp.status().is_success() {
-        eprintln!(
-            "Labelary API returned status {} for {}",
-            resp.status(),
-            url
-        );
+        eprintln!("Labelary API returned status {} for {}", resp.status(), url);
         return None;
     }
 

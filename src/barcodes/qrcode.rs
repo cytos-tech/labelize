@@ -1,11 +1,15 @@
-use image::{RgbaImage, Rgba};
-use qrcode::QrCode;
+use image::{Rgba, RgbaImage};
 use qrcode::types::EcLevel;
+use qrcode::QrCode;
 
 use crate::elements::barcode_qr::QrErrorCorrectionLevel;
 
 /// Generate a QR code image using a proper QR code encoder.
-pub fn encode(content: &str, magnification: i32, ec_level: QrErrorCorrectionLevel) -> Result<RgbaImage, String> {
+pub fn encode(
+    content: &str,
+    magnification: i32,
+    ec_level: QrErrorCorrectionLevel,
+) -> Result<RgbaImage, String> {
     if content.is_empty() {
         return Err("QR code: empty content".to_string());
     }

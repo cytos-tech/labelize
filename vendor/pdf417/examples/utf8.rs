@@ -12,18 +12,19 @@ const W: usize = pdf417_width!(COLS, SCALE.0);
 const H: usize = pdf417_height!(ROWS, SCALE.1);
 
 fn main() {
-    let mut input = [0u16; (COLS*ROWS) as usize];
+    let mut input = [0u16; (COLS * ROWS) as usize];
 
     let (level, _) = PDF417Encoder::new(&mut input, false)
         .append_utf8("💛 ワンピース")
-        .fit_seal().unwrap();
+        .fit_seal()
+        .unwrap();
 
     let mut storage = [false; W * H];
     let pdf417 = PDF417::new(&input, ROWS, COLS, level);
     pdf417.render(&mut storage[..]);
 
     let mut col = 0;
-    for _ in 0..((PADDING+1)/2) {
+    for _ in 0..((PADDING + 1) / 2) {
         println!("{}", str::repeat(WHITE, W + PADDING * 2));
     }
     print!("{}", str::repeat(WHITE, PADDING));
@@ -36,7 +37,7 @@ fn main() {
         }
     }
     println!("{}", str::repeat(WHITE, W + PADDING));
-    for _ in 0..((PADDING-1)/2) {
+    for _ in 0..((PADDING - 1) / 2) {
         println!("{}", str::repeat(WHITE, W + PADDING * 2));
     }
     println!("\x1B[0m");

@@ -1,9 +1,3 @@
-use super::text_field::TextField;
-use super::graphic_box::GraphicBox;
-use super::graphic_circle::GraphicCircle;
-use super::graphic_diagonal_line::GraphicDiagonalLine;
-use super::graphic_field::GraphicField;
-use super::graphic_symbol::GraphicSymbol;
 use super::barcode_128::{Barcode128, Barcode128WithData};
 use super::barcode_2of5::{Barcode2of5, Barcode2of5WithData};
 use super::barcode_39::{Barcode39, Barcode39WithData};
@@ -12,9 +6,15 @@ use super::barcode_datamatrix::{BarcodeDatamatrix, BarcodeDatamatrixWithData};
 use super::barcode_ean13::{BarcodeEan13, BarcodeEan13WithData};
 use super::barcode_pdf417::{BarcodePdf417, BarcodePdf417WithData};
 use super::barcode_qr::{BarcodeQr, BarcodeQrWithData};
-use super::maxicode::{Maxicode, MaxicodeWithData};
 use super::field_block::FieldBlock;
-use super::stored_format::{StoredField, RecalledFieldData, RecalledField, RecalledFormat};
+use super::graphic_box::GraphicBox;
+use super::graphic_circle::GraphicCircle;
+use super::graphic_diagonal_line::GraphicDiagonalLine;
+use super::graphic_field::GraphicField;
+use super::graphic_symbol::GraphicSymbol;
+use super::maxicode::{Maxicode, MaxicodeWithData};
+use super::stored_format::{RecalledField, RecalledFieldData, RecalledFormat, StoredField};
+use super::text_field::TextField;
 
 /// All drawable label elements and intermediate parser constructs
 #[derive(Clone, Debug)]

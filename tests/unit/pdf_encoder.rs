@@ -1,6 +1,6 @@
 use image::{Rgba, RgbaImage};
-use labelize::DrawerOptions;
 use labelize::encode_pdf;
+use labelize::DrawerOptions;
 
 #[test]
 fn pdf_output_is_non_empty() {
@@ -38,8 +38,5 @@ fn pdf_contains_mediabox() {
     let mut buf = Vec::new();
     encode_pdf(&img, &opts, &mut buf).expect("encode_pdf failed");
     let content = String::from_utf8_lossy(&buf);
-    assert!(
-        content.contains("MediaBox"),
-        "PDF should contain MediaBox"
-    );
+    assert!(content.contains("MediaBox"), "PDF should contain MediaBox");
 }

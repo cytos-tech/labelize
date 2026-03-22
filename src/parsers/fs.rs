@@ -9,7 +9,10 @@ pub fn validate_device(path: &str) -> Result<(), String> {
         if VALID_DEVICES.contains(&device) {
             return Ok(());
         }
-        return Err(format!("invalid device name {}, must be one of {:?}", device, VALID_DEVICES));
+        return Err(format!(
+            "invalid device name {}, must be one of {:?}",
+            device, VALID_DEVICES
+        ));
     }
     Err("path does not contain device name".to_string())
 }

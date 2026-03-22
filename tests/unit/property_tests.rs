@@ -1,5 +1,5 @@
-use proptest::prelude::*;
 use crate::common::proptest_strategies;
+use proptest::prelude::*;
 
 // --- Parser property tests ---
 
@@ -160,20 +160,52 @@ mod text_orientation_tests {
         assert!(
             result.diff_percent <= tolerance,
             "Text golden test '{}' FAILED: {:.2}% pixel diff (tolerance: {:.2}%)",
-            name, result.diff_percent, tolerance,
+            name,
+            result.diff_percent,
+            tolerance,
         );
     }
 
-    #[test] fn text_fo_normal_tight() { run_text_golden("text_fo_n", TEXT_TOLERANCE); }
-    #[test] fn text_fo_rotated90_tight() { run_text_golden("text_fo_r", TEXT_TOLERANCE); }
-    #[test] fn text_fo_rotated180_tight() { run_text_golden("text_fo_i", TEXT_TOLERANCE); }
-    #[test] fn text_fo_rotated270_tight() { run_text_golden("text_fo_b", TEXT_TOLERANCE); }
-    #[test] fn text_ft_normal_tight() { run_text_golden("text_ft_n", TEXT_TOLERANCE); }
-    #[test] fn text_ft_rotated90_tight() { run_text_golden("text_ft_r", TEXT_TOLERANCE); }
-    #[test] fn text_ft_rotated180_tight() { run_text_golden("text_ft_i", TEXT_TOLERANCE); }
-    #[test] fn text_ft_rotated270_tight() { run_text_golden("text_ft_b", TEXT_TOLERANCE); }
-    #[test] fn text_ft_auto_pos_tight() { run_text_golden("text_ft_auto_pos", TEXT_TOLERANCE); }
-    #[test] fn text_multiline_tight() { run_text_golden("text_multiline", TEXT_TOLERANCE); }
+    #[test]
+    fn text_fo_normal_tight() {
+        run_text_golden("text_fo_n", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_fo_rotated90_tight() {
+        run_text_golden("text_fo_r", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_fo_rotated180_tight() {
+        run_text_golden("text_fo_i", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_fo_rotated270_tight() {
+        run_text_golden("text_fo_b", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_ft_normal_tight() {
+        run_text_golden("text_ft_n", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_ft_rotated90_tight() {
+        run_text_golden("text_ft_r", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_ft_rotated180_tight() {
+        run_text_golden("text_ft_i", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_ft_rotated270_tight() {
+        run_text_golden("text_ft_b", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_ft_auto_pos_tight() {
+        run_text_golden("text_ft_auto_pos", TEXT_TOLERANCE);
+    }
+    #[test]
+    fn text_multiline_tight() {
+        run_text_golden("text_multiline", TEXT_TOLERANCE);
+    }
 }
 
 // --- Preservation property tests ---
@@ -209,34 +241,79 @@ mod preservation_tests {
         let content = std::fs::read_to_string(&input).expect("read input");
         let actual_png = render_helpers::render_zpl_to_png(&content, labelary_options());
         let expected_png = std::fs::read(&expected).expect("read golden");
-        let result = image_compare::compare_images(&actual_png, &expected_png, PRESERVATION_TOLERANCE);
+        let result =
+            image_compare::compare_images(&actual_png, &expected_png, PRESERVATION_TOLERANCE);
 
         assert!(
             result.diff_percent <= PRESERVATION_TOLERANCE,
             "Preservation test '{}' FAILED: {:.2}% pixel diff (tolerance: {:.2}%)",
-            name, result.diff_percent, PRESERVATION_TOLERANCE,
+            name,
+            result.diff_percent,
+            PRESERVATION_TOLERANCE,
         );
     }
 
     // Barcode preservation
-    #[test] fn preserve_barcode128_default_width() { run_preservation_golden("barcode128_default_width"); }
-    #[test] fn preserve_barcode128_rotated() { run_preservation_golden("barcode128_rotated"); }
-    #[test] fn preserve_barcode128_line() { run_preservation_golden("barcode128_line"); }
-    #[test] fn preserve_ean13() { run_preservation_golden("ean13"); }
+    #[test]
+    fn preserve_barcode128_default_width() {
+        run_preservation_golden("barcode128_default_width");
+    }
+    #[test]
+    fn preserve_barcode128_rotated() {
+        run_preservation_golden("barcode128_rotated");
+    }
+    #[test]
+    fn preserve_barcode128_line() {
+        run_preservation_golden("barcode128_line");
+    }
+    #[test]
+    fn preserve_ean13() {
+        run_preservation_golden("ean13");
+    }
 
     // Graphic element preservation
-    #[test] fn preserve_gb_normal() { run_preservation_golden("gb_normal"); }
-    #[test] fn preserve_gb_rounded() { run_preservation_golden("gb_rounded"); }
-    #[test] fn preserve_gb_0_height() { run_preservation_golden("gb_0_height"); }
-    #[test] fn preserve_gb_0_width() { run_preservation_golden("gb_0_width"); }
+    #[test]
+    fn preserve_gb_normal() {
+        run_preservation_golden("gb_normal");
+    }
+    #[test]
+    fn preserve_gb_rounded() {
+        run_preservation_golden("gb_rounded");
+    }
+    #[test]
+    fn preserve_gb_0_height() {
+        run_preservation_golden("gb_0_height");
+    }
+    #[test]
+    fn preserve_gb_0_width() {
+        run_preservation_golden("gb_0_width");
+    }
 
     // Mixed labels (barcodes + text + graphics)
-    #[test] fn preserve_amazon() { run_preservation_golden("amazon"); }
-    #[test] fn preserve_fedex() { run_preservation_golden("fedex"); }
-    #[test] fn preserve_ups() { run_preservation_golden("ups"); }
-    #[test] fn preserve_usps() { run_preservation_golden("usps"); }
+    #[test]
+    fn preserve_amazon() {
+        run_preservation_golden("amazon");
+    }
+    #[test]
+    fn preserve_fedex() {
+        run_preservation_golden("fedex");
+    }
+    #[test]
+    fn preserve_ups() {
+        run_preservation_golden("ups");
+    }
+    #[test]
+    fn preserve_usps() {
+        run_preservation_golden("usps");
+    }
 
     // QR code preservation
-    #[test] fn preserve_qr_code_ft_manual() { run_preservation_golden("qr_code_ft_manual"); }
-    #[test] fn preserve_reverse_qr() { run_preservation_golden("reverse_qr"); }
+    #[test]
+    fn preserve_qr_code_ft_manual() {
+        run_preservation_golden("qr_code_ft_manual");
+    }
+    #[test]
+    fn preserve_reverse_qr() {
+        run_preservation_golden("reverse_qr");
+    }
 }

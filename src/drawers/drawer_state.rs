@@ -1,17 +1,23 @@
-use crate::elements::text_field::TextField;
 use crate::elements::field_orientation::FieldOrientation;
+use crate::elements::text_field::TextField;
 
 pub struct DrawerState {
     pub auto_pos_x: f64,
     pub auto_pos_y: f64,
 }
 
-impl DrawerState {
-    pub fn new() -> Self {
+impl Default for DrawerState {
+    fn default() -> Self {
         DrawerState {
             auto_pos_x: 0.0,
             auto_pos_y: 0.0,
         }
+    }
+}
+
+impl DrawerState {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn update_automatic_text_position(&mut self, text: &TextField, w: f64) {

@@ -1,4 +1,4 @@
-use image::{RgbaImage, Rgba};
+use image::{Rgba, RgbaImage};
 
 /// MaxiCode is a 2D barcode with a fixed 30x33 hexagonal grid and a central bullseye.
 /// This is a simplified implementation that encodes data into a recognizable MaxiCode pattern.
@@ -76,7 +76,7 @@ fn draw_ring(img: &mut RgbaImage, cx: u32, cy: u32, inner_r: u32, outer_r: u32, 
     let d = outer_r as i32;
     for dy in -d..=d {
         for dx in -d..=d {
-            let dist2 = (dx as i64 * dx as i64 + dy as i64 * dy as i64) as i64;
+            let dist2 = dx as i64 * dx as i64 + dy as i64 * dy as i64;
             if dist2 >= r2_inner && dist2 <= r2_outer {
                 let px = cx as i32 + dx;
                 let py = cy as i32 + dy;

@@ -25,6 +25,12 @@ static FONT_GS: &[u8] = crate::assets::FONT_ZPL_GS;
 
 pub struct Renderer;
 
+impl Default for Renderer {
+    fn default() -> Self {
+        Self
+    }
+}
+
 impl Renderer {
     pub fn new() -> Self {
         Renderer
@@ -100,7 +106,10 @@ impl Renderer {
                         let src_pixel = *canvas.get_pixel(x, y);
                         let dst_x = (label_width as u32 - 1 - x) as i64 - offset_x;
                         let dst_y = image_height as u32 - 1 - y;
-                        if dst_x >= 0 && (dst_x as u32) < final_canvas.width() && dst_y < final_canvas.height() {
+                        if dst_x >= 0
+                            && (dst_x as u32) < final_canvas.width()
+                            && dst_y < final_canvas.height()
+                        {
                             final_canvas.put_pixel(dst_x as u32, dst_y, src_pixel);
                         }
                     }
@@ -114,7 +123,9 @@ impl Renderer {
         let mut buf = Vec::new();
         images::monochrome::encode_png(&canvas, &mut buf)
             .map_err(|e| format!("failed to encode png: {}", e))?;
-        output.write_all(&buf).map_err(|e| format!("failed to write png: {}", e))
+        output
+            .write_all(&buf)
+            .map_err(|e| format!("failed to write png: {}", e))
     }
 
     fn draw_element(
@@ -167,7 +178,10 @@ impl Renderer {
 
         let font_size = text.font.get_size() as f32;
         let scale_x = text.font.get_scale_x() as f32;
-        let scale = PxScale { x: font_size * scale_x, y: font_size };
+        let scale = PxScale {
+            x: font_size * scale_x,
+            y: font_size,
+        };
 
         // Compute font ascent for ^FT baseline positioning.
         // Use a ZPL-proportional ascent (~78% of cell height) to match Zebra font metrics,
@@ -195,7 +209,9 @@ impl Renderer {
         if orientation == FieldOrientation::Normal {
             // Normal: draw directly onto canvas (no rotation needed)
             if let Some(ref block) = text.block {
-                draw_text_block(canvas, &font, scale, scale_x, color, x as f32, y as f32, block, &text.text);
+                draw_text_block(
+                    canvas, &font, scale, scale_x, color, x as f32, y as f32, block, &text.text,
+                );
             } else {
                 drawing::draw_text_mut(canvas, color, x as i32, y as i32, scale, &font, &text.text);
             }
@@ -221,7 +237,9 @@ impl Renderer {
             let mut buf = RgbaImage::from_pixel(buf_w, buf_h, Rgba([0, 0, 0, 0]));
 
             if let Some(ref block) = text.block {
-                draw_text_block(&mut buf, &font, scale, scale_x, color, 0.0, 0.0, block, &text.text);
+                draw_text_block(
+                    &mut buf, &font, scale, scale_x, color, 0.0, 0.0, block, &text.text,
+                );
             } else {
                 drawing::draw_text_mut(&mut buf, color, 0, 0, scale, &font, &text.text);
             }
@@ -254,7 +272,8 @@ impl Renderer {
         if gb.corner_rounding > 0 {
             // ZPL corner_rounding 1-8: radius = (shorter_side / 2) * (rounding / 8)
             let shorter = w.min(h);
-            let radius = ((shorter as f64 / 2.0) * (gb.corner_rounding as f64 / 8.0)).round() as i32;
+            let radius =
+                ((shorter as f64 / 2.0) * (gb.corner_rounding as f64 / 8.0)).round() as i32;
             draw_rounded_rect(canvas, x, y, w, h, border, radius, color);
         } else {
             // Draw box with border
@@ -287,12 +306,7 @@ impl Renderer {
 
         if thickness >= outer_r {
             // Filled circle
-            drawing::draw_filled_circle_mut(
-                canvas,
-                (cx as i32, cy as i32),
-                outer_r as i32,
-                color,
-            );
+            drawing::draw_filled_circle_mut(canvas, (cx as i32, cy as i32), outer_r as i32, color);
         } else {
             // Ring: draw filled outer, then erase inner with opposite pass
             // Use per-pixel distance check for accurate ring rendering
@@ -346,7 +360,9 @@ impl Renderer {
             let dx = x1 - x0;
             let dy = y1 - y0;
             let len = (dx * dx + dy * dy).sqrt();
-            if len < 0.001 { return; }
+            if len < 0.001 {
+                return;
+            }
             let t = thickness as f32;
             // Normal direction pointing toward the interior of the bounding box.
             // For L (\, top_to_bottom): line goes top-left to bottom-right,
@@ -361,12 +377,7 @@ impl Renderer {
                 (-dy / len * t, dx / len * t)
             };
 
-            let para = [
-                (x0, y0),
-                (x0 + nx, y0 + ny),
-                (x1 + nx, y1 + ny),
-                (x1, y1),
-            ];
+            let para = [(x0, y0), (x0 + nx, y0 + ny), (x1 + nx, y1 + ny), (x1, y1)];
 
             let clipped = clip_polygon_to_rect(&para, x, y, x + w, y + h);
             if clipped.len() >= 3 {
@@ -438,7 +449,11 @@ impl Renderer {
                     }
                     _ => content.clone(),
                 };
-                let img = barcodes::code128::encode_auto(&content_to_encode, bc.barcode.height, bc.width)?;
+                let img = barcodes::code128::encode_auto(
+                    &content_to_encode,
+                    bc.barcode.height,
+                    bc.width,
+                )?;
                 (img, content.clone())
             }
         };
@@ -448,8 +463,13 @@ impl Renderer {
 
         if bc.barcode.line {
             draw_barcode_interpretation_line(
-                canvas, &display_text, &pos, &img,
-                bc.barcode.orientation, bc.barcode.line_above, bc.width,
+                canvas,
+                &display_text,
+                &pos,
+                &img,
+                bc.barcode.orientation,
+                bc.barcode.line_above,
+                bc.width,
             );
         }
         Ok(())
@@ -466,8 +486,13 @@ impl Renderer {
 
         if bc.barcode.line {
             draw_barcode_interpretation_line(
-                canvas, &bc.data, &pos, &img,
-                bc.barcode.orientation, bc.barcode.line_above, bc.width,
+                canvas,
+                &bc.data,
+                &pos,
+                &img,
+                bc.barcode.orientation,
+                bc.barcode.line_above,
+                bc.width,
             );
         }
         Ok(())
@@ -491,8 +516,13 @@ impl Renderer {
 
         if bc.barcode.line {
             draw_barcode_interpretation_line(
-                canvas, &content, &pos, &img,
-                bc.barcode.orientation, bc.barcode.line_above, bc.width,
+                canvas,
+                &content,
+                &pos,
+                &img,
+                bc.barcode.orientation,
+                bc.barcode.line_above,
+                bc.width,
             );
         }
         Ok(())
@@ -503,20 +533,21 @@ impl Renderer {
         canvas: &mut RgbaImage,
         bc: &crate::elements::barcode_39::Barcode39WithData,
     ) -> Result<(), String> {
-        let img = barcodes::code39::encode(
-            &bc.data,
-            bc.barcode.height,
-            bc.width_ratio as i32,
-            bc.width,
-        )?;
+        let img =
+            barcodes::code39::encode(&bc.data, bc.barcode.height, bc.width_ratio as i32, bc.width)?;
         let pos = adjust_image_typeset_position(&img, &bc.position, bc.barcode.orientation);
         overlay_with_rotation(canvas, &img, &pos, bc.barcode.orientation);
 
         if bc.barcode.line {
             let display_text = format!("*{}*", bc.data);
             draw_barcode_interpretation_line(
-                canvas, &display_text, &pos, &img,
-                bc.barcode.orientation, bc.barcode.line_above, bc.width,
+                canvas,
+                &display_text,
+                &pos,
+                &img,
+                bc.barcode.orientation,
+                bc.barcode.line_above,
+                bc.width,
             );
         }
         Ok(())
@@ -641,6 +672,7 @@ fn word_wrap(text: &str, font: &FontRef, scale: PxScale, max_width: f32) -> Vec<
     lines
 }
 
+#[allow(clippy::too_many_arguments)]
 fn draw_text_block(
     canvas: &mut RgbaImage,
     font: &FontRef,
@@ -679,7 +711,13 @@ fn draw_text_block(
     }
 }
 
-fn get_text_top_left_pos(text: &TextField, w: f64, h: f64, ascent: f64, state: &DrawerState) -> (f64, f64) {
+fn get_text_top_left_pos(
+    text: &TextField,
+    w: f64,
+    h: f64,
+    ascent: f64,
+    state: &DrawerState,
+) -> (f64, f64) {
     let (x, y) = state.get_text_position(text);
 
     if !text.position.calculate_from_bottom {
@@ -695,8 +733,16 @@ fn get_text_top_left_pos(text: &TextField, w: f64, h: f64, ascent: f64, state: &
     // Convert to top-left of the rendering area.
     // Use ascent (not full height) for the baseline-to-top distance of the last line.
     // Use full font height h for line spacing between lines.
-    let lines = if let Some(ref block) = text.block { block.max_lines.max(1) as f64 } else { 1.0 };
-    let spacing = if let Some(ref block) = text.block { block.line_spacing as f64 } else { 0.0 };
+    let lines = if let Some(ref block) = text.block {
+        block.max_lines.max(1) as f64
+    } else {
+        1.0
+    };
+    let spacing = if let Some(ref block) = text.block {
+        block.line_spacing as f64
+    } else {
+        0.0
+    };
     let total_h = ascent + (lines - 1.0) * (h + spacing);
 
     match text.font.orientation {
@@ -871,10 +917,13 @@ fn rotate_270(img: &RgbaImage) -> RgbaImage {
 
 /// Draw a rounded rectangle with border. ZPL corner rounding uses radius
 /// computed as (shorter_side/2) * (rounding/8).
+#[allow(clippy::too_many_arguments)]
 fn draw_rounded_rect(
     canvas: &mut RgbaImage,
-    x: i32, y: i32,
-    w: i32, h: i32,
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
     border: i32,
     radius: i32,
     color: Rgba<u8>,
@@ -891,9 +940,12 @@ fn draw_rounded_rect(
         let bg = Rgba([255, 255, 255, 255]);
         draw_filled_rounded_rect_region(
             canvas,
-            x + border, y + border,
-            w - 2 * border, h - 2 * border,
-            inner_r, bg,
+            x + border,
+            y + border,
+            w - 2 * border,
+            h - 2 * border,
+            inner_r,
+            bg,
         );
     }
 }
@@ -901,8 +953,10 @@ fn draw_rounded_rect(
 /// Fill a rounded rectangle region pixel-by-pixel.
 fn draw_filled_rounded_rect_region(
     canvas: &mut RgbaImage,
-    x: i32, y: i32,
-    w: i32, h: i32,
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
     r: i32,
     color: Rgba<u8>,
 ) {
@@ -960,10 +1014,16 @@ fn draw_barcode_interpretation_line(
     // Zebra's interpretation line font scales with the barcode module width.
     // At module_width=2 (default), the standard font is ~18px.
     let font_size = (module_width.max(1) as f32 * 9.0).clamp(12.0, 72.0);
-    let scale = PxScale { x: font_size, y: font_size };
+    let scale = PxScale {
+        x: font_size,
+        y: font_size,
+    };
 
     // Strip control characters (like FNC1 escape) from display text
-    let display: String = text.chars().filter(|c| !c.is_control() && *c != '\u{00F1}').collect();
+    let display: String = text
+        .chars()
+        .filter(|c| !c.is_control() && *c != '\u{00F1}')
+        .collect();
 
     let text_width = measure_text_width(&display, &font, scale);
     let bw = barcode_img.width() as i32;

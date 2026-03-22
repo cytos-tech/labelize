@@ -34,8 +34,8 @@ pub struct VirtualPrinter {
     pub label_inverted: bool,
 }
 
-impl VirtualPrinter {
-    pub fn new() -> Self {
+impl Default for VirtualPrinter {
+    fn default() -> Self {
         VirtualPrinter {
             stored_graphics: HashMap::new(),
             stored_formats: HashMap::new(),
@@ -62,6 +62,12 @@ impl VirtualPrinter {
             label_inverted: false,
         }
     }
+}
+
+impl VirtualPrinter {
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn set_default_orientation(&mut self, orientation: FieldOrientation) {
         self.default_orientation = orientation;
@@ -72,11 +78,14 @@ impl VirtualPrinter {
     }
 
     pub fn get_next_font_or_default(&self) -> FontInfo {
-        self.next_font.clone().unwrap_or_else(|| self.default_font.clone())
+        self.next_font
+            .clone()
+            .unwrap_or_else(|| self.default_font.clone())
     }
 
     pub fn get_next_element_alignment_or_default(&self) -> FieldAlignment {
-        self.next_element_alignment.unwrap_or(self.default_alignment)
+        self.next_element_alignment
+            .unwrap_or(self.default_alignment)
     }
 
     pub fn get_reverse_print(&self) -> ReversePrint {

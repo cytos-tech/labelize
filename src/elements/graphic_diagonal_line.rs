@@ -1,6 +1,6 @@
-use super::reverse_print::ReversePrint;
 use super::label_position::LabelPosition;
 use super::line_color::LineColor;
+use super::reverse_print::ReversePrint;
 
 #[derive(Clone, Debug)]
 pub struct GraphicDiagonalLine {

@@ -1,12 +1,5 @@
 use std::collections::HashMap;
 
-use super::field_info::FieldInfo;
-use super::font::FontInfo;
-use super::graphic_symbol::GraphicSymbol;
-use super::field_block::FieldBlock;
-use super::text_field::TextField;
-use super::label_element::LabelElement;
-use super::reverse_print::ReversePrint;
 use super::barcode_128::Barcode128WithData;
 use super::barcode_2of5::Barcode2of5WithData;
 use super::barcode_39::Barcode39WithData;
@@ -15,7 +8,14 @@ use super::barcode_datamatrix::BarcodeDatamatrixWithData;
 use super::barcode_ean13::BarcodeEan13WithData;
 use super::barcode_pdf417::BarcodePdf417WithData;
 use super::barcode_qr::BarcodeQrWithData;
+use super::field_block::FieldBlock;
+use super::field_info::FieldInfo;
+use super::font::FontInfo;
+use super::graphic_symbol::GraphicSymbol;
+use super::label_element::LabelElement;
 use super::maxicode::MaxicodeWithData;
+use super::reverse_print::ReversePrint;
+use super::text_field::TextField;
 use crate::encodings;
 
 #[derive(Clone, Debug)]
@@ -68,14 +68,12 @@ impl RecalledFormat {
         match element {
             LabelElement::StoredField(sf) => {
                 let idx = self.elements.len();
-                self.elements.push(LabelElement::RecalledField(RecalledField {
-                    stored: sf.clone(),
-                    data: String::new(),
-                }));
-                self.field_refs
-                    .entry(sf.number)
-                    .or_default()
-                    .push(idx);
+                self.elements
+                    .push(LabelElement::RecalledField(RecalledField {
+                        stored: sf.clone(),
+                        data: String::new(),
+                    }));
+                self.field_refs.entry(sf.number).or_default().push(idx);
                 true
             }
             LabelElement::RecalledFieldData(rfd) => {
@@ -86,23 +84,24 @@ impl RecalledFormat {
                         }
                     }
                 } else {
-                    self.elements.push(LabelElement::RecalledField(RecalledField {
-                        stored: StoredField {
-                            number: rfd.number,
-                            field: FieldInfo {
-                                reverse_print: ReversePrint::default(),
-                                element: None,
-                                font: FontInfo::default(),
-                                position: Default::default(),
-                                alignment: Default::default(),
-                                width: 0,
-                                width_ratio: 0.0,
-                                height: 0,
-                                current_charset: 0,
+                    self.elements
+                        .push(LabelElement::RecalledField(RecalledField {
+                            stored: StoredField {
+                                number: rfd.number,
+                                field: FieldInfo {
+                                    reverse_print: ReversePrint::default(),
+                                    element: None,
+                                    font: FontInfo::default(),
+                                    position: Default::default(),
+                                    alignment: Default::default(),
+                                    width: 0,
+                                    width_ratio: 0.0,
+                                    height: 0,
+                                    current_charset: 0,
+                                },
                             },
-                        },
-                        data: rfd.data,
-                    }));
+                            data: rfd.data,
+                        }));
                 }
                 true
             }
@@ -202,14 +201,14 @@ fn resolve_field(f: &RecalledField) -> Result<Option<LabelElement>, String> {
                 data: text.clone(),
             })))
         }
-        Some(LabelElement::BarcodeDatamatrixConfig(bc)) => {
-            Ok(Some(LabelElement::BarcodeDatamatrix(BarcodeDatamatrixWithData {
+        Some(LabelElement::BarcodeDatamatrixConfig(bc)) => Ok(Some(
+            LabelElement::BarcodeDatamatrix(BarcodeDatamatrixWithData {
                 reverse_print: field.reverse_print.clone(),
                 barcode: bc.clone(),
                 position: field.position.clone(),
                 data: text.clone(),
-            })))
-        }
+            }),
+        )),
         Some(LabelElement::BarcodeQrConfig(bc)) => {
             Ok(Some(LabelElement::BarcodeQr(BarcodeQrWithData {
                 reverse_print: field.reverse_print.clone(),
@@ -222,9 +221,7 @@ fn resolve_field(f: &RecalledField) -> Result<Option<LabelElement>, String> {
         Some(LabelElement::GraphicSymbolConfig(gs)) => {
             to_graphic_symbol_text_field(text, field, gs)
         }
-        Some(LabelElement::FieldBlockConfig(fb)) => {
-            to_text_field(text, field, Some(fb))
-        }
+        Some(LabelElement::FieldBlockConfig(fb)) => to_text_field(text, field, Some(fb)),
         _ => to_text_field(text, field, None),
     }
 }

@@ -52,10 +52,7 @@ fn draw_header(img: &mut RgbaImage, x_offset: u32, width: u32, label: &str) {
 }
 
 /// Combine two images side-by-side with a separator and headers.
-fn combine_side_by_side(
-    reference: &DynamicImage,
-    rendered: &DynamicImage,
-) -> RgbaImage {
+fn combine_side_by_side(reference: &DynamicImage, rendered: &DynamicImage) -> RgbaImage {
     let (rw, rh) = reference.dimensions();
     let (nw, nh) = rendered.dimensions();
 
@@ -65,7 +62,8 @@ fn combine_side_by_side(
     let total_w = rw + separator + nw;
     let total_h = max_h + header_h;
 
-    let mut combined: RgbaImage = ImageBuffer::from_pixel(total_w, total_h, Rgba([200, 200, 200, 255]));
+    let mut combined: RgbaImage =
+        ImageBuffer::from_pixel(total_w, total_h, Rgba([200, 200, 200, 255]));
 
     // Draw headers
     draw_header(&mut combined, 0, rw, "REFERENCE");
@@ -114,7 +112,10 @@ fn main() {
         .unwrap()
         .flatten()
         .filter(|e| {
-            let ext = e.path().extension().map(|x| x.to_string_lossy().to_string());
+            let ext = e
+                .path()
+                .extension()
+                .map(|x| x.to_string_lossy().to_string());
             matches!(ext.as_deref(), Some("zpl") | Some("epl"))
         })
         .map(|e| e.path())

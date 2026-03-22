@@ -5,7 +5,6 @@
 ///   cargo test --test e2e diff_report -- --nocapture
 ///
 /// The report is also written to `testdata/diffs/diff_report.txt`.
-
 use crate::common::image_compare;
 use crate::common::render_helpers;
 use std::fmt::Write as FmtWrite;
@@ -62,16 +61,12 @@ fn generate_diff_report() -> Vec<ReportEntry> {
         let opts = render_helpers::default_options();
 
         let actual_png = match ext.as_str() {
-            "epl" => {
-                std::panic::catch_unwind(|| {
-                    render_helpers::render_epl_to_png(&content, opts.clone())
-                })
-            }
-            _ => {
-                std::panic::catch_unwind(|| {
-                    render_helpers::render_zpl_to_png(&content, opts.clone())
-                })
-            }
+            "epl" => std::panic::catch_unwind(|| {
+                render_helpers::render_epl_to_png(&content, opts.clone())
+            }),
+            _ => std::panic::catch_unwind(|| {
+                render_helpers::render_zpl_to_png(&content, opts.clone())
+            }),
         };
 
         let actual_png = match actual_png {
@@ -129,12 +124,32 @@ fn generate_diff_report() -> Vec<ReportEntry> {
 
 fn format_report(entries: &[ReportEntry]) -> String {
     let mut report = String::new();
-    writeln!(report, "╔══════════════════════════════════════════════════════════════════════════════╗").unwrap();
-    writeln!(report, "║                    ZPL/EPL Rendering Diff Report                            ║").unwrap();
-    writeln!(report, "╠══════════════════════════════════════════════════════════════════════════════╣").unwrap();
-    writeln!(report, "║ {:30} │ {:4} │ {:>8} │ {:>13} │ {:>13} │ {:12} ║",
-        "Name", "Ext", "Diff%", "Actual(WxH)", "Expected(WxH)", "Status").unwrap();
-    writeln!(report, "╠══════════════════════════════════════════════════════════════════════════════╣").unwrap();
+    writeln!(
+        report,
+        "╔══════════════════════════════════════════════════════════════════════════════╗"
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "║                    ZPL/EPL Rendering Diff Report                            ║"
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "╠══════════════════════════════════════════════════════════════════════════════╣"
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "║ {:30} │ {:4} │ {:>8} │ {:>13} │ {:>13} │ {:12} ║",
+        "Name", "Ext", "Diff%", "Actual(WxH)", "Expected(WxH)", "Status"
+    )
+    .unwrap();
+    writeln!(
+        report,
+        "╠══════════════════════════════════════════════════════════════════════════════╣"
+    )
+    .unwrap();
 
     let mut perfect = 0usize;
     let mut good = 0usize;
@@ -161,8 +176,12 @@ fn format_report(entries: &[ReportEntry]) -> String {
             format!("{:.2}%", e.diff_percent)
         };
 
-        writeln!(report, "║ {:30} │ {:4} │ {:>8} │ {:>13} │ {:>13} │ {:12} ║",
-            e.name, e.ext, diff_str, dims_actual, dims_expected, e.status).unwrap();
+        writeln!(
+            report,
+            "║ {:30} │ {:4} │ {:>8} │ {:>13} │ {:>13} │ {:12} ║",
+            e.name, e.ext, diff_str, dims_actual, dims_expected, e.status
+        )
+        .unwrap();
 
         match e.status {
             "PERFECT" => perfect += 1,
@@ -176,10 +195,18 @@ fn format_report(entries: &[ReportEntry]) -> String {
     }
 
     let total = entries.len();
-    writeln!(report, "╠══════════════════════════════════════════════════════════════════════════════╣").unwrap();
+    writeln!(
+        report,
+        "╠══════════════════════════════════════════════════════════════════════════════╣"
+    )
+    .unwrap();
     writeln!(report, "║ Summary: {} total │ {} perfect │ {} good │ {} minor │ {} moderate │ {} high │ {} skip │ {} err",
         total, perfect, good, minor, moderate, high, skipped, errored).unwrap();
-    writeln!(report, "╚══════════════════════════════════════════════════════════════════════════════╝").unwrap();
+    writeln!(
+        report,
+        "╚══════════════════════════════════════════════════════════════════════════════╝"
+    )
+    .unwrap();
 
     report
 }
@@ -193,7 +220,9 @@ fn diff_report_all() {
     println!("\n{}", report);
 
     // Save to file
-    let report_path = render_helpers::testdata_dir().join("diffs").join("diff_report.txt");
+    let report_path = render_helpers::testdata_dir()
+        .join("diffs")
+        .join("diff_report.txt");
     std::fs::create_dir_all(report_path.parent().unwrap()).ok();
     let mut f = std::fs::File::create(&report_path).expect("create report file");
     f.write_all(report.as_bytes()).expect("write report");
@@ -201,7 +230,10 @@ fn diff_report_all() {
     println!("Report saved to: {}", report_path.display());
 
     // Collect entries with HIGH diff for assertion message
-    let high_diffs: Vec<&ReportEntry> = entries.iter().filter(|e| e.status == "HIGH(>=15%)").collect();
+    let high_diffs: Vec<&ReportEntry> = entries
+        .iter()
+        .filter(|e| e.status == "HIGH(>=15%)")
+        .collect();
     if !high_diffs.is_empty() {
         let mut msg = String::from("The following test cases have HIGH diff (>=15%):\n");
         for e in &high_diffs {

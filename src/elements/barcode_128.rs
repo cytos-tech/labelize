@@ -1,6 +1,6 @@
 use super::field_orientation::FieldOrientation;
-use super::reverse_print::ReversePrint;
 use super::label_position::LabelPosition;
+use super::reverse_print::ReversePrint;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum BarcodeMode {

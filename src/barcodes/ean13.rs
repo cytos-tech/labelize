@@ -1,38 +1,59 @@
-use image::{Rgba, RgbaImage};
 use super::bit_matrix::BitMatrix;
+use image::{Rgba, RgbaImage};
 
 // EAN-13 encoding patterns
 // L-codes (odd parity), G-codes (even parity), R-codes
 static L_PATTERNS: [[u8; 7]; 10] = [
-    [0,0,0,1,1,0,1],[0,0,1,1,0,0,1],[0,0,1,0,0,1,1],[0,1,1,1,1,0,1],
-    [0,1,0,0,0,1,1],[0,1,1,0,0,0,1],[0,1,0,1,1,1,1],[0,1,1,1,0,1,1],
-    [0,1,1,0,1,1,1],[0,0,0,1,0,1,1],
+    [0, 0, 0, 1, 1, 0, 1],
+    [0, 0, 1, 1, 0, 0, 1],
+    [0, 0, 1, 0, 0, 1, 1],
+    [0, 1, 1, 1, 1, 0, 1],
+    [0, 1, 0, 0, 0, 1, 1],
+    [0, 1, 1, 0, 0, 0, 1],
+    [0, 1, 0, 1, 1, 1, 1],
+    [0, 1, 1, 1, 0, 1, 1],
+    [0, 1, 1, 0, 1, 1, 1],
+    [0, 0, 0, 1, 0, 1, 1],
 ];
 
 static G_PATTERNS: [[u8; 7]; 10] = [
-    [0,1,0,0,1,1,1],[0,1,1,0,0,1,1],[0,0,1,1,0,1,1],[0,1,0,0,0,0,1],
-    [0,0,1,1,1,0,1],[0,1,1,1,0,0,1],[0,0,0,0,1,0,1],[0,0,1,0,0,0,1],
-    [0,0,0,1,0,0,1],[0,0,1,0,1,1,1],
+    [0, 1, 0, 0, 1, 1, 1],
+    [0, 1, 1, 0, 0, 1, 1],
+    [0, 0, 1, 1, 0, 1, 1],
+    [0, 1, 0, 0, 0, 0, 1],
+    [0, 0, 1, 1, 1, 0, 1],
+    [0, 1, 1, 1, 0, 0, 1],
+    [0, 0, 0, 0, 1, 0, 1],
+    [0, 0, 1, 0, 0, 0, 1],
+    [0, 0, 0, 1, 0, 0, 1],
+    [0, 0, 1, 0, 1, 1, 1],
 ];
 
 static R_PATTERNS: [[u8; 7]; 10] = [
-    [1,1,1,0,0,1,0],[1,1,0,0,1,1,0],[1,1,0,1,1,0,0],[1,0,0,0,0,1,0],
-    [1,0,1,1,1,0,0],[1,0,0,1,1,1,0],[1,0,1,0,0,0,0],[1,0,0,0,1,0,0],
-    [1,0,0,1,0,0,0],[1,1,1,0,1,0,0],
+    [1, 1, 1, 0, 0, 1, 0],
+    [1, 1, 0, 0, 1, 1, 0],
+    [1, 1, 0, 1, 1, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0],
+    [1, 0, 1, 1, 1, 0, 0],
+    [1, 0, 0, 1, 1, 1, 0],
+    [1, 0, 1, 0, 0, 0, 0],
+    [1, 0, 0, 0, 1, 0, 0],
+    [1, 0, 0, 1, 0, 0, 0],
+    [1, 1, 1, 0, 1, 0, 0],
 ];
 
 // First digit encoding: which pattern (L or G) to use for digits 2-7
 static FIRST_DIGIT_PATTERNS: [[u8; 6]; 10] = [
-    [0,0,0,0,0,0], // 0: LLLLLL
-    [0,0,1,0,1,1], // 1: LLGLGG
-    [0,0,1,1,0,1], // 2: LLGGLG
-    [0,0,1,1,1,0], // 3: LLGGGL
-    [0,1,0,0,1,1], // 4: LGLLGG
-    [0,1,1,0,0,1], // 5: LGGLGL (actually LGGLLG)
-    [0,1,1,1,0,0], // 6: LGGGLL
-    [0,1,0,1,0,1], // 7: LGLGLG
-    [0,1,0,1,1,0], // 8: LGLGGL
-    [0,1,1,0,1,0], // 9: LGGLGL
+    [0, 0, 0, 0, 0, 0], // 0: LLLLLL
+    [0, 0, 1, 0, 1, 1], // 1: LLGLGG
+    [0, 0, 1, 1, 0, 1], // 2: LLGGLG
+    [0, 0, 1, 1, 1, 0], // 3: LLGGGL
+    [0, 1, 0, 0, 1, 1], // 4: LGLLGG
+    [0, 1, 1, 0, 0, 1], // 5: LGGLGL (actually LGGLLG)
+    [0, 1, 1, 1, 0, 0], // 6: LGGGLL
+    [0, 1, 0, 1, 0, 1], // 7: LGLGLG
+    [0, 1, 0, 1, 1, 0], // 8: LGLGGL
+    [0, 1, 1, 0, 1, 0], // 9: LGGLGL
 ];
 
 fn calculate_checksum(digits: &[u8; 12]) -> u8 {
@@ -48,13 +69,17 @@ fn calculate_checksum(digits: &[u8; 12]) -> u8 {
 }
 
 pub fn encode(content: &str, height: i32, bar_width: i32) -> Result<RgbaImage, String> {
-    let digits: Vec<u8> = content.chars()
+    let digits: Vec<u8> = content
+        .chars()
         .filter(|c| c.is_ascii_digit())
         .map(|c| c as u8 - b'0')
         .collect();
 
     if digits.len() < 12 {
-        return Err(format!("EAN-13: need at least 12 digits, got {}", digits.len()));
+        return Err(format!(
+            "EAN-13: need at least 12 digits, got {}",
+            digits.len()
+        ));
     }
 
     let mut d12 = [0u8; 12];
@@ -72,9 +97,11 @@ pub fn encode(content: &str, height: i32, bar_width: i32) -> Result<RgbaImage, S
     let mut pos = 0;
 
     // Start guard: 101
-    bm.set(pos, 0, true); pos += 1;
+    bm.set(pos, 0, true);
+    pos += 1;
     pos += 1; // space
-    bm.set(pos, 0, true); pos += 1;
+    bm.set(pos, 0, true);
+    pos += 1;
 
     // Left side (digits 2-7)
     for i in 0..6 {
@@ -85,16 +112,20 @@ pub fn encode(content: &str, height: i32, bar_width: i32) -> Result<RgbaImage, S
             &G_PATTERNS[digit]
         };
         for &bit in pattern {
-            if bit == 1 { bm.set(pos, 0, true); }
+            if bit == 1 {
+                bm.set(pos, 0, true);
+            }
             pos += 1;
         }
     }
 
     // Center guard: 01010
     pos += 1;
-    bm.set(pos, 0, true); pos += 1;
+    bm.set(pos, 0, true);
     pos += 1;
-    bm.set(pos, 0, true); pos += 1;
+    pos += 1;
+    bm.set(pos, 0, true);
+    pos += 1;
     pos += 1;
 
     // Right side (digits 8-12 + checksum)
@@ -102,13 +133,16 @@ pub fn encode(content: &str, height: i32, bar_width: i32) -> Result<RgbaImage, S
     for &digit in &right_digits {
         let pattern = &R_PATTERNS[digit as usize];
         for &bit in pattern {
-            if bit == 1 { bm.set(pos, 0, true); }
+            if bit == 1 {
+                bm.set(pos, 0, true);
+            }
             pos += 1;
         }
     }
 
     // End guard: 101
-    bm.set(pos, 0, true); pos += 1;
+    bm.set(pos, 0, true);
+    pos += 1;
     pos += 1;
     bm.set(pos, 0, true);
 
@@ -123,9 +157,7 @@ pub fn encode(content: &str, height: i32, bar_width: i32) -> Result<RgbaImage, S
     // Start guard: modules 0-2
     // Center guard: modules 45-49
     // End guard: modules 92-94
-    let is_guard_module = |m: usize| -> bool {
-        m <= 2 || (45..=49).contains(&m) || m >= 92
-    };
+    let is_guard_module = |m: usize| -> bool { m <= 2 || (45..=49).contains(&m) || m >= 92 };
 
     let iw = module_count * bw;
     let black = Rgba([0, 0, 0, 255]);

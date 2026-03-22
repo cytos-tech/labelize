@@ -1,6 +1,6 @@
+use crate::error::LabelizeError;
 use image::RgbaImage;
 use std::io::Write;
-use crate::error::LabelizeError;
 
 pub fn encode_png(img: &RgbaImage, w: &mut impl Write) -> Result<(), LabelizeError> {
     let (width, height) = img.dimensions();
@@ -17,11 +17,6 @@ pub fn encode_png(img: &RgbaImage, w: &mut impl Write) -> Result<(), LabelizeErr
     let encoder = image::codecs::png::PngEncoder::new(w);
     use image::ImageEncoder;
     encoder
-        .write_image(
-            gray.as_raw(),
-            width,
-            height,
-            image::ExtendedColorType::L8,
-        )
+        .write_image(gray.as_raw(), width, height, image::ExtendedColorType::L8)
         .map_err(|e| LabelizeError::Encode(format!("PNG encode error: {}", e)))
 }

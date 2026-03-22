@@ -1,5 +1,5 @@
-use image::{RgbaImage, Rgba};
 use datamatrix::{DataMatrix, SymbolList};
+use image::{Rgba, RgbaImage};
 
 /// Generate a Data Matrix barcode image using a proper ECC 200 encoder.
 pub fn encode(content: &str, magnification: i32) -> Result<RgbaImage, String> {

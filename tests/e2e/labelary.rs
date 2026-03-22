@@ -15,13 +15,14 @@ fn compare_against_labelary(zpl: &str, name: &str) {
     let width_in = mm_to_inches(opts.label_width_mm);
     let height_in = mm_to_inches(opts.label_height_mm);
 
-    let labelary_png = match labelary_client::labelary_render(zpl, opts.dpmm as u8, width_in, height_in) {
-        Some(png) => png,
-        None => {
-            eprintln!("SKIP {}: Labelary API unreachable", name);
-            return;
-        }
-    };
+    let labelary_png =
+        match labelary_client::labelary_render(zpl, opts.dpmm as u8, width_in, height_in) {
+            Some(png) => png,
+            None => {
+                eprintln!("SKIP {}: Labelary API unreachable", name);
+                return;
+            }
+        };
 
     let actual_png = render_helpers::render_zpl_to_png(zpl, opts);
     let result = image_compare::compare_images(&actual_png, &labelary_png, LABELARY_TOLERANCE);
@@ -49,37 +50,25 @@ fn compare_against_labelary(zpl: &str, name: &str) {
 #[test]
 #[ignore = "requires network access to Labelary API"]
 fn labelary_text_label() {
-    compare_against_labelary(
-        "^XA^FO50,50^A0N,40,40^FDHello World^FS^XZ",
-        "text_label",
-    );
+    compare_against_labelary("^XA^FO50,50^A0N,40,40^FDHello World^FS^XZ", "text_label");
 }
 
 #[test]
 #[ignore = "requires network access to Labelary API"]
 fn labelary_barcode128() {
-    compare_against_labelary(
-        "^XA^FO50,50^BCN,100,Y,N,N^FD123456789^FS^XZ",
-        "barcode128",
-    );
+    compare_against_labelary("^XA^FO50,50^BCN,100,Y,N,N^FD123456789^FS^XZ", "barcode128");
 }
 
 #[test]
 #[ignore = "requires network access to Labelary API"]
 fn labelary_graphic_box() {
-    compare_against_labelary(
-        "^XA^FO50,50^GB200,100,3^FS^XZ",
-        "graphic_box",
-    );
+    compare_against_labelary("^XA^FO50,50^GB200,100,3^FS^XZ", "graphic_box");
 }
 
 #[test]
 #[ignore = "requires network access to Labelary API"]
 fn labelary_qr_code() {
-    compare_against_labelary(
-        "^XA^FO50,50^BQN,2,5^FDQA,Hello^FS^XZ",
-        "qr_code",
-    );
+    compare_against_labelary("^XA^FO50,50^BQN,2,5^FDQA,Hello^FS^XZ", "qr_code");
 }
 
 #[test]
@@ -94,19 +83,13 @@ fn labelary_mixed_label() {
 #[test]
 #[ignore = "requires network access to Labelary API"]
 fn labelary_gd_thin_right() {
-    compare_against_labelary(
-        "^XA^FO50,50^GD200,200,5,B,R^FS^XZ",
-        "gd_thin_right",
-    );
+    compare_against_labelary("^XA^FO50,50^GD200,200,5,B,R^FS^XZ", "gd_thin_right");
 }
 
 #[test]
 #[ignore = "requires network access to Labelary API"]
 fn labelary_gd_thin_left() {
-    compare_against_labelary(
-        "^XA^FO50,50^GD200,200,5,B,L^FS^XZ",
-        "gd_thin_left",
-    );
+    compare_against_labelary("^XA^FO50,50^GD200,200,5,B,L^FS^XZ", "gd_thin_left");
 }
 
 #[test]

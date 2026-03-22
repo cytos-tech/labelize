@@ -40,7 +40,10 @@ fn main() {
         match parser.parse(&content) {
             Ok(labels) if !labels.is_empty() => {
                 let mut buf = Cursor::new(Vec::new());
-                if renderer.draw_label_as_png(&labels[0], &mut buf, default_options()).is_ok() {
+                if renderer
+                    .draw_label_as_png(&labels[0], &mut buf, default_options())
+                    .is_ok()
+                {
                     let out = outdir.join(format!("{}.png", name));
                     std::fs::write(&out, buf.into_inner()).unwrap();
                     println!("OK  {}.zpl", name);
@@ -73,7 +76,10 @@ fn main() {
         match parser.parse(&content) {
             Ok(labels) if !labels.is_empty() => {
                 let mut buf = Cursor::new(Vec::new());
-                if renderer.draw_label_as_png(&labels[0], &mut buf, default_options()).is_ok() {
+                if renderer
+                    .draw_label_as_png(&labels[0], &mut buf, default_options())
+                    .is_ok()
+                {
                     let out = outdir.join(format!("{}.png", name));
                     std::fs::write(&out, buf.into_inner()).unwrap();
                     println!("OK  {}.epl", name);

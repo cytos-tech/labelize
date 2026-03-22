@@ -1,7 +1,7 @@
-use crate::elements::field_orientation::FieldOrientation;
-use crate::elements::field_alignment::FieldAlignment;
-use crate::elements::text_alignment::TextAlignment;
 use crate::elements::barcode_128::BarcodeMode;
+use crate::elements::field_alignment::FieldAlignment;
+use crate::elements::field_orientation::FieldOrientation;
+use crate::elements::text_alignment::TextAlignment;
 
 pub fn split_command<'a>(command: &'a str, prefix: &str) -> Vec<&'a str> {
     let data = &command[prefix.len()..];

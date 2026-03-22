@@ -1,8 +1,8 @@
-use super::reverse_print::ReversePrint;
-use super::font::FontInfo;
-use super::label_position::LabelPosition;
 use super::field_alignment::FieldAlignment;
+use super::font::FontInfo;
 use super::label_element::LabelElement;
+use super::label_position::LabelPosition;
+use super::reverse_print::ReversePrint;
 
 #[derive(Clone, Debug)]
 pub struct FieldInfo {

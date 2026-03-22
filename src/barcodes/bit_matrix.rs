@@ -1,4 +1,4 @@
-use image::{RgbaImage, Rgba};
+use image::{Rgba, RgbaImage};
 
 #[derive(Clone, Debug)]
 pub struct BitMatrix {

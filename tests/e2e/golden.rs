@@ -98,67 +98,250 @@ fn golden_epl_with_tolerance(name: &str, tolerance: f64) {
 // Tolerances are per-label ceilings (current diff + headroom).
 // See docs/DIFF_THRESHOLDS.md for rationale.
 
-#[test] fn golden_amazon() { golden_zpl_with_tolerance("amazon", 4.0); }
-#[test] fn golden_aztec_ec() { golden_zpl_with_tolerance("aztec_ec", 9.0); }
-#[test] fn golden_barcode128_default_width() { golden_zpl_with_tolerance("barcode128_default_width", 2.0); }
-#[test] fn golden_barcode128_line() { golden_zpl_with_tolerance("barcode128_line", 2.0); }
-#[test] fn golden_barcode128_line_above() { golden_zpl_with_tolerance("barcode128_line_above", 2.0); }
-#[test] fn golden_barcode128_mode_a() { golden_zpl_with_tolerance("barcode128_mode_a", 2.0); }
-#[test] fn golden_barcode128_mode_d() { golden_zpl_with_tolerance("barcode128_mode_d", 2.0); }
-#[test] fn golden_barcode128_mode_n() { golden_zpl_with_tolerance("barcode128_mode_n", 2.0); }
-#[test] fn golden_barcode128_mode_n_cba_sets() { golden_zpl_with_tolerance("barcode128_mode_n_cba_sets", 2.0); }
-#[test] fn golden_barcode128_mode_u() { golden_zpl_with_tolerance("barcode128_mode_u", 3.0); }
-#[test] fn golden_barcode128_rotated() { golden_zpl_with_tolerance("barcode128_rotated", 2.0); }
-#[test] fn golden_bstc() { golden_zpl_with_tolerance("bstc", 1.0); }
-#[test] fn golden_dbs() { golden_zpl_with_tolerance("dbs", 6.0); }
-#[test] fn golden_dhlecommercetr() { golden_zpl_with_tolerance("dhlecommercetr", 6.0); }
-#[test] fn golden_dhlpaket() { golden_zpl_with_tolerance("dhlpaket", 4.0); }
-#[test] fn golden_dhlparceluk() { golden_zpl_with_tolerance("dhlparceluk", 5.5); }
-#[test] fn golden_dpdpl() { golden_zpl_with_tolerance("dpdpl", 8.0); }
-#[test] fn golden_ean13() { golden_zpl_with_tolerance("ean13", 3.0); }
-#[test] fn golden_encodings_013() { golden_zpl_with_tolerance("encodings_013", 3.0); }
-#[test] fn golden_fedex() { golden_zpl_with_tolerance("fedex", 9.0); }
-#[test] fn golden_gd_thin_r() { golden_zpl_with_tolerance("gd_thin_r", 2.0); }
-#[test] fn golden_gd_thin_l() { golden_zpl_with_tolerance("gd_thin_l", 2.0); }
-#[test] fn golden_gd_thick() { golden_zpl_with_tolerance("gd_thick", 4.5); }
-#[test] fn golden_gd_default_params() { golden_zpl_with_tolerance("gd_default_params", 1.0); }
-#[test] fn golden_gb_0_height() { golden_zpl_with_tolerance("gb_0_height", 1.0); }
-#[test] fn golden_gb_0_width() { golden_zpl_with_tolerance("gb_0_width", 1.0); }
-#[test] fn golden_gb_normal() { golden_zpl_with_tolerance("gb_normal", 1.0); }
-#[test] fn golden_gb_rounded() { golden_zpl_with_tolerance("gb_rounded", 1.0); }
-#[test] fn golden_glscz() { golden_zpl_with_tolerance("glscz", 5.0); }
-#[test] fn golden_glsdk_return() { golden_zpl_with_tolerance("glsdk_return", 7.0); }
-#[test] fn golden_gs() { golden_zpl_with_tolerance("gs", 2.0); }
-#[test] fn golden_icapaket() { golden_zpl_with_tolerance("icapaket", 6.0); }
-#[test] fn golden_jcpenney() { golden_zpl_with_tolerance("jcpenney", 8.0); }
-#[test] fn golden_kmart() { golden_zpl_with_tolerance("kmart", 9.0); }
-#[test] fn golden_labelary() { golden_zpl_with_tolerance("labelary", 5.5); }
-#[test] fn golden_pnldpd() { golden_zpl_with_tolerance("pnldpd", 14.5); }
-#[test] fn golden_pocztex() { golden_zpl_with_tolerance("pocztex", 5.5); }
-#[test] fn golden_porterbuddy() { golden_zpl_with_tolerance("porterbuddy", 10.0); }
-#[test] fn golden_posten() { golden_zpl_with_tolerance("posten", 5.0); }
-#[test] fn golden_qr_code_ft_manual() { golden_zpl_with_tolerance("qr_code_ft_manual", 4.0); }
-#[test] fn golden_qr_code_offset() { golden_zpl_with_tolerance("qr_code_offset", 3.0); }
-#[test] fn golden_return_qrcode() { golden_zpl_with_tolerance("return_qrcode", 7.0); }
-#[test] fn golden_reverse_qr() { golden_zpl_with_tolerance("reverse_qr", 5.0); }
-#[test] fn golden_reverse() { golden_zpl_with_tolerance("reverse", 2.0); }
-#[test] fn golden_swisspost() { golden_zpl_with_tolerance("swisspost", 3.0); }
-#[test] fn golden_templating() { golden_zpl_with_tolerance("templating", 3.0); }
-#[test] fn golden_text_fallback_default() { golden_zpl_with_tolerance("text_fallback_default", 5.0); }
-#[test] fn golden_text_fo_b() { golden_zpl_with_tolerance("text_fo_b", 1.0); }
-#[test] fn golden_text_fo_i() { golden_zpl_with_tolerance("text_fo_i", 1.0); }
-#[test] fn golden_text_fo_n() { golden_zpl_with_tolerance("text_fo_n", 1.0); }
-#[test] fn golden_text_fo_r() { golden_zpl_with_tolerance("text_fo_r", 1.0); }
-#[test] fn golden_text_ft_auto_pos() { golden_zpl_with_tolerance("text_ft_auto_pos", 3.0); }
-#[test] fn golden_text_ft_b() { golden_zpl_with_tolerance("text_ft_b", 1.0); }
-#[test] fn golden_text_ft_i() { golden_zpl_with_tolerance("text_ft_i", 1.0); }
-#[test] fn golden_text_ft_n() { golden_zpl_with_tolerance("text_ft_n", 1.0); }
-#[test] fn golden_text_ft_r() { golden_zpl_with_tolerance("text_ft_r", 1.0); }
-#[test] fn golden_text_multiline() { golden_zpl_with_tolerance("text_multiline", 2.0); }
-#[test] fn golden_ups_surepost() { golden_zpl_with_tolerance("ups_surepost", 12.0); }
-#[test] fn golden_ups() { golden_zpl_with_tolerance("ups", 9.0); }
-#[test] fn golden_usps() { golden_zpl_with_tolerance("usps", 6.0); }
+#[test]
+fn golden_amazon() {
+    golden_zpl_with_tolerance("amazon", 4.0);
+}
+#[test]
+fn golden_aztec_ec() {
+    golden_zpl_with_tolerance("aztec_ec", 9.0);
+}
+#[test]
+fn golden_barcode128_default_width() {
+    golden_zpl_with_tolerance("barcode128_default_width", 2.0);
+}
+#[test]
+fn golden_barcode128_line() {
+    golden_zpl_with_tolerance("barcode128_line", 2.0);
+}
+#[test]
+fn golden_barcode128_line_above() {
+    golden_zpl_with_tolerance("barcode128_line_above", 2.0);
+}
+#[test]
+fn golden_barcode128_mode_a() {
+    golden_zpl_with_tolerance("barcode128_mode_a", 2.0);
+}
+#[test]
+fn golden_barcode128_mode_d() {
+    golden_zpl_with_tolerance("barcode128_mode_d", 2.0);
+}
+#[test]
+fn golden_barcode128_mode_n() {
+    golden_zpl_with_tolerance("barcode128_mode_n", 2.0);
+}
+#[test]
+fn golden_barcode128_mode_n_cba_sets() {
+    golden_zpl_with_tolerance("barcode128_mode_n_cba_sets", 2.0);
+}
+#[test]
+fn golden_barcode128_mode_u() {
+    golden_zpl_with_tolerance("barcode128_mode_u", 3.0);
+}
+#[test]
+fn golden_barcode128_rotated() {
+    golden_zpl_with_tolerance("barcode128_rotated", 2.0);
+}
+#[test]
+fn golden_bstc() {
+    golden_zpl_with_tolerance("bstc", 1.0);
+}
+#[test]
+fn golden_dbs() {
+    golden_zpl_with_tolerance("dbs", 6.0);
+}
+#[test]
+fn golden_dhlecommercetr() {
+    golden_zpl_with_tolerance("dhlecommercetr", 6.0);
+}
+#[test]
+fn golden_dhlpaket() {
+    golden_zpl_with_tolerance("dhlpaket", 4.0);
+}
+#[test]
+fn golden_dhlparceluk() {
+    golden_zpl_with_tolerance("dhlparceluk", 5.5);
+}
+#[test]
+fn golden_dpdpl() {
+    golden_zpl_with_tolerance("dpdpl", 8.0);
+}
+#[test]
+fn golden_ean13() {
+    golden_zpl_with_tolerance("ean13", 3.0);
+}
+#[test]
+fn golden_encodings_013() {
+    golden_zpl_with_tolerance("encodings_013", 3.0);
+}
+#[test]
+fn golden_fedex() {
+    golden_zpl_with_tolerance("fedex", 9.0);
+}
+#[test]
+fn golden_gd_thin_r() {
+    golden_zpl_with_tolerance("gd_thin_r", 2.0);
+}
+#[test]
+fn golden_gd_thin_l() {
+    golden_zpl_with_tolerance("gd_thin_l", 2.0);
+}
+#[test]
+fn golden_gd_thick() {
+    golden_zpl_with_tolerance("gd_thick", 4.5);
+}
+#[test]
+fn golden_gd_default_params() {
+    golden_zpl_with_tolerance("gd_default_params", 1.0);
+}
+#[test]
+fn golden_gb_0_height() {
+    golden_zpl_with_tolerance("gb_0_height", 1.0);
+}
+#[test]
+fn golden_gb_0_width() {
+    golden_zpl_with_tolerance("gb_0_width", 1.0);
+}
+#[test]
+fn golden_gb_normal() {
+    golden_zpl_with_tolerance("gb_normal", 1.0);
+}
+#[test]
+fn golden_gb_rounded() {
+    golden_zpl_with_tolerance("gb_rounded", 1.0);
+}
+#[test]
+fn golden_glscz() {
+    golden_zpl_with_tolerance("glscz", 5.0);
+}
+#[test]
+fn golden_glsdk_return() {
+    golden_zpl_with_tolerance("glsdk_return", 7.0);
+}
+#[test]
+fn golden_gs() {
+    golden_zpl_with_tolerance("gs", 2.0);
+}
+#[test]
+fn golden_icapaket() {
+    golden_zpl_with_tolerance("icapaket", 6.0);
+}
+#[test]
+fn golden_jcpenney() {
+    golden_zpl_with_tolerance("jcpenney", 8.0);
+}
+#[test]
+fn golden_kmart() {
+    golden_zpl_with_tolerance("kmart", 9.0);
+}
+#[test]
+fn golden_labelary() {
+    golden_zpl_with_tolerance("labelary", 5.5);
+}
+#[test]
+fn golden_pnldpd() {
+    golden_zpl_with_tolerance("pnldpd", 14.5);
+}
+#[test]
+fn golden_pocztex() {
+    golden_zpl_with_tolerance("pocztex", 5.5);
+}
+#[test]
+fn golden_porterbuddy() {
+    golden_zpl_with_tolerance("porterbuddy", 10.0);
+}
+#[test]
+fn golden_posten() {
+    golden_zpl_with_tolerance("posten", 5.0);
+}
+#[test]
+fn golden_qr_code_ft_manual() {
+    golden_zpl_with_tolerance("qr_code_ft_manual", 4.0);
+}
+#[test]
+fn golden_qr_code_offset() {
+    golden_zpl_with_tolerance("qr_code_offset", 3.0);
+}
+#[test]
+fn golden_return_qrcode() {
+    golden_zpl_with_tolerance("return_qrcode", 7.0);
+}
+#[test]
+fn golden_reverse_qr() {
+    golden_zpl_with_tolerance("reverse_qr", 5.0);
+}
+#[test]
+fn golden_reverse() {
+    golden_zpl_with_tolerance("reverse", 2.0);
+}
+#[test]
+fn golden_swisspost() {
+    golden_zpl_with_tolerance("swisspost", 3.0);
+}
+#[test]
+fn golden_templating() {
+    golden_zpl_with_tolerance("templating", 3.0);
+}
+#[test]
+fn golden_text_fallback_default() {
+    golden_zpl_with_tolerance("text_fallback_default", 5.0);
+}
+#[test]
+fn golden_text_fo_b() {
+    golden_zpl_with_tolerance("text_fo_b", 1.0);
+}
+#[test]
+fn golden_text_fo_i() {
+    golden_zpl_with_tolerance("text_fo_i", 1.0);
+}
+#[test]
+fn golden_text_fo_n() {
+    golden_zpl_with_tolerance("text_fo_n", 1.0);
+}
+#[test]
+fn golden_text_fo_r() {
+    golden_zpl_with_tolerance("text_fo_r", 1.0);
+}
+#[test]
+fn golden_text_ft_auto_pos() {
+    golden_zpl_with_tolerance("text_ft_auto_pos", 3.0);
+}
+#[test]
+fn golden_text_ft_b() {
+    golden_zpl_with_tolerance("text_ft_b", 1.0);
+}
+#[test]
+fn golden_text_ft_i() {
+    golden_zpl_with_tolerance("text_ft_i", 1.0);
+}
+#[test]
+fn golden_text_ft_n() {
+    golden_zpl_with_tolerance("text_ft_n", 1.0);
+}
+#[test]
+fn golden_text_ft_r() {
+    golden_zpl_with_tolerance("text_ft_r", 1.0);
+}
+#[test]
+fn golden_text_multiline() {
+    golden_zpl_with_tolerance("text_multiline", 2.0);
+}
+#[test]
+fn golden_ups_surepost() {
+    golden_zpl_with_tolerance("ups_surepost", 12.0);
+}
+#[test]
+fn golden_ups() {
+    golden_zpl_with_tolerance("ups", 9.0);
+}
+#[test]
+fn golden_usps() {
+    golden_zpl_with_tolerance("usps", 6.0);
+}
 
 // ── EPL golden tests ──────────────────────────────────────────────
 
-#[test] fn golden_dpduk_epl() { golden_epl_with_tolerance("dpduk", 6.5); }
+#[test]
+fn golden_dpduk_epl() {
+    golden_epl_with_tolerance("dpduk", 6.5);
+}

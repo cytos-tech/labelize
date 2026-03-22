@@ -1,5 +1,5 @@
-use super::reverse_print::ReversePrint;
 use super::label_position::LabelPosition;
+use super::reverse_print::ReversePrint;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GraphicFieldFormat {

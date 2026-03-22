@@ -46,7 +46,7 @@ fn pixels_below_threshold_map_to_black() {
 #[test]
 fn mixed_pixel_values() {
     let mut img = RgbaImage::new(4, 1);
-    img.put_pixel(0, 0, Rgba([0, 0, 0, 255]));      // black
+    img.put_pixel(0, 0, Rgba([0, 0, 0, 255])); // black
     img.put_pixel(1, 0, Rgba([128, 128, 128, 255])); // threshold -> black
     img.put_pixel(2, 0, Rgba([129, 129, 129, 255])); // above -> white
     img.put_pixel(3, 0, Rgba([255, 255, 255, 255])); // white

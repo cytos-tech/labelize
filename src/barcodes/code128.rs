@@ -1,5 +1,5 @@
-use image::RgbaImage;
 use super::bit_matrix::BitMatrix;
+use image::RgbaImage;
 
 pub const ESCAPE_FNC_1: char = '\u{00F1}';
 
@@ -11,28 +11,114 @@ const STOP: u8 = 106;
 
 // Code 128 bar patterns (each code has 6 alternating bar/space widths)
 static PATTERNS: [[u8; 6]; 108] = [
-    [2,1,2,2,2,2],[2,2,2,1,2,2],[2,2,2,2,2,1],[1,2,1,2,2,3],[1,2,1,3,2,2],
-    [1,3,1,2,2,2],[1,2,2,2,1,3],[1,2,2,3,1,2],[1,3,2,2,1,2],[2,2,1,2,1,3],
-    [2,2,1,3,1,2],[2,3,1,2,1,2],[1,1,2,2,3,2],[1,2,2,1,3,2],[1,2,2,2,3,1],
-    [1,1,3,2,2,2],[1,2,3,1,2,2],[1,2,3,2,2,1],[2,2,3,2,1,1],[2,2,1,1,3,2],
-    [2,2,1,2,3,1],[2,1,3,2,1,2],[2,2,3,1,1,2],[3,1,2,1,3,1],[3,1,1,2,2,2],
-    [3,2,1,1,2,2],[3,2,1,2,2,1],[3,1,2,2,1,2],[3,2,2,1,1,2],[3,2,2,2,1,1],
-    [2,1,2,1,2,3],[2,1,2,3,2,1],[2,3,2,1,2,1],[1,1,1,3,2,3],[1,3,1,1,2,3],
-    [1,3,1,3,2,1],[1,1,2,3,1,3],[1,3,2,1,1,3],[1,3,2,3,1,1],[2,1,1,3,1,3],
-    [2,3,1,1,1,3],[2,3,1,3,1,1],[1,1,2,1,3,3],[1,1,2,3,3,1],[1,3,2,1,3,1],
-    [1,1,3,1,2,3],[1,1,3,3,2,1],[1,3,3,1,2,1],[3,1,3,1,2,1],[2,1,1,3,3,1],
-    [2,3,1,1,3,1],[2,1,3,1,1,3],[2,1,3,3,1,1],[2,1,3,1,3,1],[3,1,1,1,2,3],
-    [3,1,1,3,2,1],[3,3,1,1,2,1],[3,1,2,1,1,3],[3,1,2,3,1,1],[3,3,2,1,1,1],
-    [3,1,4,1,1,1],[2,2,1,4,1,1],[4,3,1,1,1,1],[1,1,1,2,2,4],[1,1,1,4,2,2],
-    [1,2,1,1,2,4],[1,2,1,4,2,1],[1,4,1,1,2,2],[1,4,1,2,2,1],[1,1,2,2,1,4],
-    [1,1,2,4,1,2],[1,2,2,1,1,4],[1,2,2,4,1,1],[1,4,2,1,1,2],[1,4,2,2,1,1],
-    [2,4,1,2,1,1],[2,2,1,1,1,4],[4,1,3,1,1,1],[2,4,1,1,1,2],[1,3,4,1,1,1],
-    [1,1,1,2,4,2],[1,2,1,1,4,2],[1,2,1,2,4,1],[1,1,4,2,1,2],[1,2,4,1,1,2],
-    [1,2,4,2,1,1],[4,1,1,2,1,2],[4,2,1,1,1,2],[4,2,1,2,1,1],[2,1,2,1,4,1],
-    [2,1,4,1,2,1],[4,1,2,1,2,1],[1,1,1,1,4,3],[1,1,1,3,4,1],[1,3,1,1,4,1],
-    [1,1,4,1,1,3],[1,1,4,3,1,1],[4,1,1,1,1,3],[4,1,1,3,1,1],[1,1,3,1,4,1],
-    [1,1,4,1,3,1],[3,1,1,1,4,1],[4,1,1,1,3,1],[2,1,1,4,1,2],[2,1,1,2,1,4],
-    [2,1,1,2,3,2],[2,3,3,1,1,1],[2,1,1,1,3,2],
+    [2, 1, 2, 2, 2, 2],
+    [2, 2, 2, 1, 2, 2],
+    [2, 2, 2, 2, 2, 1],
+    [1, 2, 1, 2, 2, 3],
+    [1, 2, 1, 3, 2, 2],
+    [1, 3, 1, 2, 2, 2],
+    [1, 2, 2, 2, 1, 3],
+    [1, 2, 2, 3, 1, 2],
+    [1, 3, 2, 2, 1, 2],
+    [2, 2, 1, 2, 1, 3],
+    [2, 2, 1, 3, 1, 2],
+    [2, 3, 1, 2, 1, 2],
+    [1, 1, 2, 2, 3, 2],
+    [1, 2, 2, 1, 3, 2],
+    [1, 2, 2, 2, 3, 1],
+    [1, 1, 3, 2, 2, 2],
+    [1, 2, 3, 1, 2, 2],
+    [1, 2, 3, 2, 2, 1],
+    [2, 2, 3, 2, 1, 1],
+    [2, 2, 1, 1, 3, 2],
+    [2, 2, 1, 2, 3, 1],
+    [2, 1, 3, 2, 1, 2],
+    [2, 2, 3, 1, 1, 2],
+    [3, 1, 2, 1, 3, 1],
+    [3, 1, 1, 2, 2, 2],
+    [3, 2, 1, 1, 2, 2],
+    [3, 2, 1, 2, 2, 1],
+    [3, 1, 2, 2, 1, 2],
+    [3, 2, 2, 1, 1, 2],
+    [3, 2, 2, 2, 1, 1],
+    [2, 1, 2, 1, 2, 3],
+    [2, 1, 2, 3, 2, 1],
+    [2, 3, 2, 1, 2, 1],
+    [1, 1, 1, 3, 2, 3],
+    [1, 3, 1, 1, 2, 3],
+    [1, 3, 1, 3, 2, 1],
+    [1, 1, 2, 3, 1, 3],
+    [1, 3, 2, 1, 1, 3],
+    [1, 3, 2, 3, 1, 1],
+    [2, 1, 1, 3, 1, 3],
+    [2, 3, 1, 1, 1, 3],
+    [2, 3, 1, 3, 1, 1],
+    [1, 1, 2, 1, 3, 3],
+    [1, 1, 2, 3, 3, 1],
+    [1, 3, 2, 1, 3, 1],
+    [1, 1, 3, 1, 2, 3],
+    [1, 1, 3, 3, 2, 1],
+    [1, 3, 3, 1, 2, 1],
+    [3, 1, 3, 1, 2, 1],
+    [2, 1, 1, 3, 3, 1],
+    [2, 3, 1, 1, 3, 1],
+    [2, 1, 3, 1, 1, 3],
+    [2, 1, 3, 3, 1, 1],
+    [2, 1, 3, 1, 3, 1],
+    [3, 1, 1, 1, 2, 3],
+    [3, 1, 1, 3, 2, 1],
+    [3, 3, 1, 1, 2, 1],
+    [3, 1, 2, 1, 1, 3],
+    [3, 1, 2, 3, 1, 1],
+    [3, 3, 2, 1, 1, 1],
+    [3, 1, 4, 1, 1, 1],
+    [2, 2, 1, 4, 1, 1],
+    [4, 3, 1, 1, 1, 1],
+    [1, 1, 1, 2, 2, 4],
+    [1, 1, 1, 4, 2, 2],
+    [1, 2, 1, 1, 2, 4],
+    [1, 2, 1, 4, 2, 1],
+    [1, 4, 1, 1, 2, 2],
+    [1, 4, 1, 2, 2, 1],
+    [1, 1, 2, 2, 1, 4],
+    [1, 1, 2, 4, 1, 2],
+    [1, 2, 2, 1, 1, 4],
+    [1, 2, 2, 4, 1, 1],
+    [1, 4, 2, 1, 1, 2],
+    [1, 4, 2, 2, 1, 1],
+    [2, 4, 1, 2, 1, 1],
+    [2, 2, 1, 1, 1, 4],
+    [4, 1, 3, 1, 1, 1],
+    [2, 4, 1, 1, 1, 2],
+    [1, 3, 4, 1, 1, 1],
+    [1, 1, 1, 2, 4, 2],
+    [1, 2, 1, 1, 4, 2],
+    [1, 2, 1, 2, 4, 1],
+    [1, 1, 4, 2, 1, 2],
+    [1, 2, 4, 1, 1, 2],
+    [1, 2, 4, 2, 1, 1],
+    [4, 1, 1, 2, 1, 2],
+    [4, 2, 1, 1, 1, 2],
+    [4, 2, 1, 2, 1, 1],
+    [2, 1, 2, 1, 4, 1],
+    [2, 1, 4, 1, 2, 1],
+    [4, 1, 2, 1, 2, 1],
+    [1, 1, 1, 1, 4, 3],
+    [1, 1, 1, 3, 4, 1],
+    [1, 3, 1, 1, 4, 1],
+    [1, 1, 4, 1, 1, 3],
+    [1, 1, 4, 3, 1, 1],
+    [4, 1, 1, 1, 1, 3],
+    [4, 1, 1, 3, 1, 1],
+    [1, 1, 3, 1, 4, 1],
+    [1, 1, 4, 1, 3, 1],
+    [3, 1, 1, 1, 4, 1],
+    [4, 1, 1, 1, 3, 1],
+    [2, 1, 1, 4, 1, 2],
+    [2, 1, 1, 2, 1, 4],
+    [2, 1, 1, 2, 3, 2],
+    [2, 3, 3, 1, 1, 1],
+    [2, 1, 1, 1, 3, 2],
 ];
 
 static STOP_PATTERN: [u8; 7] = [2, 3, 3, 1, 1, 1, 2];
@@ -85,7 +171,11 @@ pub fn encode_auto(content: &str, height: i32, bar_width: i32) -> Result<RgbaIma
     let leading_digits = count_digits(&chars, skip);
     let mut current_set = if leading_digits >= 4 { 'C' } else { 'B' };
 
-    let start_code = if current_set == 'C' { CODE_C_START } else { CODE_B_START };
+    let start_code = if current_set == 'C' {
+        CODE_C_START
+    } else {
+        CODE_B_START
+    };
     codes.push(start_code);
     let mut checksum = start_code as u32;
     let mut weight = 1u32;
@@ -132,7 +222,7 @@ pub fn encode_auto(content: &str, height: i32, bar_width: i32) -> Result<RgbaIma
         }
 
         let b = ch as u8;
-        let code = if b >= 32 && b <= 127 { b - 32 } else { 0 };
+        let code = if (32..=127).contains(&b) { b - 32 } else { 0 };
         codes.push(code);
         checksum += code as u32 * weight;
         weight += 1;
@@ -148,7 +238,10 @@ pub fn encode_auto(content: &str, height: i32, bar_width: i32) -> Result<RgbaIma
 
 // Count consecutive digits starting at position `from` in `chars`
 fn count_digits(chars: &[char], from: usize) -> usize {
-    chars[from..].iter().take_while(|c| c.is_ascii_digit()).count()
+    chars[from..]
+        .iter()
+        .take_while(|c| c.is_ascii_digit())
+        .count()
 }
 
 const CODE_A_SWITCH: u8 = 101;
@@ -156,7 +249,11 @@ const CODE_B_SWITCH: u8 = 100;
 const CODE_C_SWITCH: u8 = 99;
 const FNC1: u8 = 102;
 
-pub fn encode_no_mode(content: &str, height: i32, bar_width: i32) -> Result<(RgbaImage, String), String> {
+pub fn encode_no_mode(
+    content: &str,
+    height: i32,
+    bar_width: i32,
+) -> Result<(RgbaImage, String), String> {
     // In no-mode, subset codes like >: >; >9 >0 etc. select subsets
     // Only auto-optimize when an explicit start set prefix is given.
     let mut codes: Vec<u8> = Vec::new();
@@ -168,9 +265,18 @@ pub fn encode_no_mode(content: &str, height: i32, bar_width: i32) -> Result<(Rgb
     // Determine requested start set from prefix
     let requested_set = if !chars.is_empty() && chars[0] == '>' && chars.len() > 1 {
         match chars[1] {
-            ':' => { i = 2; Some('C') }
-            ';' => { i = 2; Some('B') }
-            '9' | '0' => { i = 2; Some('A') }
+            ':' => {
+                i = 2;
+                Some('C')
+            }
+            ';' => {
+                i = 2;
+                Some('B')
+            }
+            '9' | '0' => {
+                i = 2;
+                Some('A')
+            }
             _ => None,
         }
     } else {
@@ -280,7 +386,8 @@ pub fn encode_no_mode(content: &str, height: i32, bar_width: i32) -> Result<(Rgb
 
         let code = match current_set {
             'C' => {
-                if i + 1 < chars.len() && chars[i].is_ascii_digit() && chars[i + 1].is_ascii_digit() {
+                if i + 1 < chars.len() && chars[i].is_ascii_digit() && chars[i + 1].is_ascii_digit()
+                {
                     let val = (chars[i] as u8 - b'0') * 10 + (chars[i + 1] as u8 - b'0');
                     text.push(chars[i]);
                     text.push(chars[i + 1]);
@@ -295,22 +402,35 @@ pub fn encode_no_mode(content: &str, height: i32, bar_width: i32) -> Result<(Rgb
                     let ch = chars[i];
                     text.push(ch);
                     let b = ch as u8;
-                    if b >= 32 && b <= 127 { b - 32 } else { 0 }
+                    if (32..=127).contains(&b) {
+                        b - 32
+                    } else {
+                        0
+                    }
                 }
             }
             'A' => {
                 let ch = chars[i];
                 text.push(ch);
                 let b = ch as u8;
-                if b >= 32 && b <= 95 { b - 32 }
-                else if b < 32 { b + 64 }
-                else { 0 }
+                if (32..=95).contains(&b) {
+                    b - 32
+                } else if b < 32 {
+                    b + 64
+                } else {
+                    0
+                }
             }
-            _ => { // B
+            _ => {
+                // B
                 let ch = chars[i];
                 text.push(ch);
                 let b = ch as u8;
-                if b >= 32 && b <= 127 { b - 32 } else { 0 }
+                if (32..=127).contains(&b) {
+                    b - 32
+                } else {
+                    0
+                }
             }
         };
 
@@ -324,5 +444,8 @@ pub fn encode_no_mode(content: &str, height: i32, bar_width: i32) -> Result<(Rgb
     codes.push(STOP);
 
     let bm = encode_pattern(&codes);
-    Ok((bm.to_1d_image(bar_width.max(1) as usize, height.max(1) as usize), text))
+    Ok((
+        bm.to_1d_image(bar_width.max(1) as usize, height.max(1) as usize),
+        text,
+    ))
 }

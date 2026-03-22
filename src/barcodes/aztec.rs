@@ -1,15 +1,23 @@
-use image::{RgbaImage, Rgba};
-use rxing::{BarcodeFormat, EncodeHints, Writer, EncodeHintValue};
+use image::{Rgba, RgbaImage};
 use rxing::aztec::AztecWriter;
+use rxing::{BarcodeFormat, EncodeHintValue, EncodeHints, Writer};
 
 /// Generate an Aztec barcode image using rxing's proper encoder.
-pub fn encode(content: &str, magnification: i32, error_correction: i32) -> Result<RgbaImage, String> {
+pub fn encode(
+    content: &str,
+    magnification: i32,
+    error_correction: i32,
+) -> Result<RgbaImage, String> {
     if content.is_empty() {
         return Err("Aztec: empty content".to_string());
     }
 
     let mag = magnification.max(1) as u32;
-    let ec_percent = if error_correction > 0 { error_correction } else { 23 };
+    let ec_percent = if error_correction > 0 {
+        error_correction
+    } else {
+        23
+    };
 
     // Use rxing Aztec writer to get proper bit matrix
     let writer = AztecWriter;
@@ -22,8 +30,8 @@ pub fn encode(content: &str, magnification: i32, error_correction: i32) -> Resul
         .encode_with_hints(content, &BarcodeFormat::AZTEC, 0, 0, &hints)
         .map_err(|e| format!("Aztec encoding failed: {}", e))?;
 
-    let bm_width = bit_matrix.getWidth() as u32;
-    let bm_height = bit_matrix.getHeight() as u32;
+    let bm_width = bit_matrix.getWidth();
+    let bm_height = bit_matrix.getHeight();
 
     // Render at magnification
     let img_width = bm_width * mag;

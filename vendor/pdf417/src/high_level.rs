@@ -2,7 +2,7 @@
 
 use crate::{ecc, find_variant};
 
-use awint_core::{InlAwi, Bits};
+use awint_core::{Bits, InlAwi};
 type U160 = InlAwi<160, { Bits::unstable_raw_digits(160) }>;
 
 /// Codeword used to latch to text mode
@@ -22,7 +22,7 @@ pub const M_SHIFT_BYTE: u16 = 913;
 // 914 to 920: reserved for future use
 // 921: used for reader initialization or programming (barcode used to
 // enable/disable specific features of the reader).
-// 922 to 923: Macro PDF4l7 
+// 922 to 923: Macro PDF4l7
 
 /// Codeword used to latch to byte mode (if length is multiple of 6 use
 /// M_LATCH_BYTE_M6).
@@ -39,12 +39,11 @@ pub const ECI_CODE_PAGE: u16 = 927;
 pub const CW_PADDING: u16 = M_LATCH_TEXT;
 
 const MIXED_CHAR_SET: [u8; 15] = [
-    b'&', b'\r', b'\t', b',', b':', b'#', b'-', b'.', b'$', b'/', b'+', b'%', b'*', b'=', b'^'
+    b'&', b'\r', b'\t', b',', b':', b'#', b'-', b'.', b'$', b'/', b'+', b'%', b'*', b'=', b'^',
 ];
 const PUNC_CHAR_SET: [u8; 29] = [
-    b';', b'<', b'>', b'@', b'[', b'\\', b']', b'_', b'`', b'~', b'!', b'\r', b'\t',
-    b',', b':', b'\n', b'-', b'.', b'$', b'/', b'"', b'|', b'*', b'(', b')', b'?',
-    b'{', b'}', b'\''
+    b';', b'<', b'>', b'@', b'[', b'\\', b']', b'_', b'`', b'~', b'!', b'\r', b'\t', b',', b':',
+    b'\n', b'-', b'.', b'$', b'/', b'"', b'|', b'*', b'(', b')', b'?', b'{', b'}', b'\'',
 ];
 
 macro_rules! push {
@@ -92,7 +91,7 @@ pub struct PDF417Encoder<'a> {
     used: usize,
     micro: bool,
     // 0: Upper, 1: Lower, 2: Mixed, 3: Punc, 4: Numeric, 5: Byte
-    last_mode: u8
+    last_mode: u8,
 }
 
 impl<'a> PDF417Encoder<'a> {
@@ -102,13 +101,26 @@ impl<'a> PDF417Encoder<'a> {
     /// data according to the classic PDF417, you can not use it to generate
     /// a MicroPDF417 and vice-versa.
     pub fn new(storage: &'a mut [u16], micro: bool) -> Self {
-        assert!(storage.len() > 0, "storage must be able to contain at least one codeword");
+        assert!(
+            storage.len() > 0,
+            "storage must be able to contain at least one codeword"
+        );
         if micro {
             // Default mode is byte compactation
-            Self { storage, used: 0, micro, last_mode: 5 } 
+            Self {
+                storage,
+                used: 0,
+                micro,
+                last_mode: 5,
+            }
         } else {
             // Skip the first codeword (used for length).
-            Self { storage, used: 1, micro, last_mode: 0 } 
+            Self {
+                storage,
+                used: 1,
+                micro,
+                last_mode: 0,
+            }
         }
     }
 
@@ -188,11 +200,15 @@ impl<'a> PDF417Encoder<'a> {
 
         if bytes.len() > 1 {
             // even if we are in byte mode, it is safer to always emit a LATCH_BYTE
-            self.storage[i] = if bytes.len() % 6 == 0 { M_LATCH_BYTE_M6 } else { M_LATCH_BYTE };
+            self.storage[i] = if bytes.len() % 6 == 0 {
+                M_LATCH_BYTE_M6
+            } else {
+                M_LATCH_BYTE
+            };
             self.last_mode = 5;
             i += 1;
 
-            while bytes.len()-k >= 6 {
+            while bytes.len() - k >= 6 {
                 // pack six bytes
                 let mut s: u64 = 0;
                 for n in 0..6 {
@@ -209,7 +225,8 @@ impl<'a> PDF417Encoder<'a> {
                 k += 6;
             }
         } else {
-            if self.last_mode < 4 { // if in text mode
+            if self.last_mode < 4 {
+                // if in text mode
                 self.storage[i] = M_SHIFT_BYTE;
             } else {
                 self.storage[i] = M_LATCH_BYTE;
@@ -253,21 +270,25 @@ impl<'a> PDF417Encoder<'a> {
         while k < s.len() {
             let c = s[k];
             match c {
-                c if c.is_ascii_uppercase() => { // b'A'..=b'Z'
+                c if c.is_ascii_uppercase() => {
+                    // b'A'..=b'Z'
                     match mode {
                         0 => (),
-                        1 => if k + 1 < s.len() && s[k + 1].is_ascii_lowercase() {
-                            push!(out, i, right, 27);
-                        } else {
-                            push!(out, i, right, 29, 29; mode = 0);
-                        },
+                        1 => {
+                            if k + 1 < s.len() && s[k + 1].is_ascii_lowercase() {
+                                push!(out, i, right, 27);
+                            } else {
+                                push!(out, i, right, 29, 29; mode = 0);
+                            }
+                        }
                         2 => push!(out, i, right, 28; mode = 0),
                         3 => push!(out, i, right, 29; mode = 0),
                         _ => unreachable!("Unknown mode {mode}"),
                     }
                     push!(out, i, right, c - b'A'; k = k + 1);
-                },
-                c if c.is_ascii_lowercase() => { // b'a'..=b'z'
+                }
+                c if c.is_ascii_lowercase() => {
+                    // b'a'..=b'z'
                     match mode {
                         0 | 2 => push!(out, i, right, 27; mode = 1),
                         1 => (),
@@ -275,10 +296,11 @@ impl<'a> PDF417Encoder<'a> {
                         _ => unreachable!("Unknown mode {mode}"),
                     }
                     push!(out, i, right, c - b'a'; k = k + 1);
-                },
-                c if c.is_ascii_digit() => { // b'0'..=b'9'
+                }
+                c if c.is_ascii_digit() => {
+                    // b'0'..=b'9'
                     let mut end = k + 1;
-                    while end < s.len() && end-k < 44 && s[end].is_ascii_digit() {
+                    while end < s.len() && end - k < 44 && s[end].is_ascii_digit() {
                         end += 1;
                     }
                     let digits = end - k;
@@ -294,7 +316,9 @@ impl<'a> PDF417Encoder<'a> {
                             push!(out, i, right, s[k] - b'0'; k = k + 1);
                         }
                     } else {
-                        if mode != 4 { push_sp!(out, i, right, M_LATCH_NUMERIC; mode = 4); }
+                        if mode != 4 {
+                            push_sp!(out, i, right, M_LATCH_NUMERIC; mode = 4);
+                        }
 
                         let mut b = U160::zero();
                         {
@@ -331,11 +355,13 @@ impl<'a> PDF417Encoder<'a> {
                     if mode == 4 && k < s.len() && !s[k].is_ascii_digit() {
                         push_sp!(out, i, right, M_LATCH_TEXT; mode = 0);
                     }
-                },
+                }
                 b' ' => {
-                    if mode == 3 { push!(out, i, right, 29; mode = 0) };
+                    if mode == 3 {
+                        push!(out, i, right, 29; mode = 0)
+                    };
                     push!(out, i, right, 26; k = k + 1);
-                },
+                }
                 c => {
                     if let Some(p) = MIXED_CHAR_SET.iter().position(|&r| r == c) {
                         match mode {
@@ -350,18 +376,23 @@ impl<'a> PDF417Encoder<'a> {
                     } else if let Some(p) = PUNC_CHAR_SET.iter().position(|&r| r == c) {
                         if mode != 3 {
                             let mut end = k + 1;
-                            while end < s.len() && end-k < 3 && PUNC_CHAR_SET.contains(&s[end]) {
+                            while end < s.len() && end - k < 3 && PUNC_CHAR_SET.contains(&s[end]) {
                                 end += 1;
                             }
-                            if end-k >= 3 { // latch
-                                if mode != 2 { push!(out, i, right, 28); }
+                            if end - k >= 3 {
+                                // latch
+                                if mode != 2 {
+                                    push!(out, i, right, 28);
+                                }
                                 push!(out, i, right, 25; mode = 3);
-                            } else { // shift
+                            } else {
+                                // shift
                                 push!(out, i, right, 29);
                             }
                         }
                         push!(out, i, right, p);
-                    } else { // switch to byte mode
+                    } else {
+                        // switch to byte mode
                         if right {
                             out[i] = out[i] * 30 + 29;
                             i += 1;
@@ -372,11 +403,11 @@ impl<'a> PDF417Encoder<'a> {
                         i += 2;
                     }
                     k += 1;
-                },
+                }
             };
         }
 
-        if right { 
+        if right {
             out[i] = out[i] * 30 + 29;
             i += 1;
         }
@@ -409,7 +440,7 @@ impl<'a> PDF417Encoder<'a> {
 
     /// Append a slice of codewords.
     pub fn append_raw(mut self, codewords: &[u16]) -> Self {
-        self.storage[self.used..self.used+codewords.len()].copy_from_slice(codewords);
+        self.storage[self.used..self.used + codewords.len()].copy_from_slice(codewords);
         self.used += codewords.len();
         self
     }
@@ -427,7 +458,7 @@ impl<'a> PDF417Encoder<'a> {
             use crate::tables::*;
             let (count, offset) = (
                 M_PDF417_VARIANTS[2 * M_PDF417_VARIANTS_COUNT + variant] as usize,
-                M_PDF417_VARIANTS[3 * M_PDF417_VARIANTS_COUNT + variant] as usize
+                M_PDF417_VARIANTS[3 * M_PDF417_VARIANTS_COUNT + variant] as usize,
             );
 
             let total = self.capacity() - count;
@@ -501,7 +532,20 @@ mod tests {
         let mut codewords = [0u16; 9];
         let ec = PDF417Encoder::new(&mut codewords, false).append_ascii("abc1D234\x1B");
         assert_eq!(ec.used, codewords.len());
-        assert_eq!(&codewords, &[0, 27 * 30 + 0, 1 * 30 + 2, 28 * 30 + 1, 28 * 30 + 3, 28 * 30 + 2, 3 * 30 + 4, 913, 0x1B]);
+        assert_eq!(
+            &codewords,
+            &[
+                0,
+                27 * 30 + 0,
+                1 * 30 + 2,
+                28 * 30 + 1,
+                28 * 30 + 3,
+                28 * 30 + 2,
+                3 * 30 + 4,
+                913,
+                0x1B
+            ]
+        );
     }
 
     #[test]
@@ -509,7 +553,23 @@ mod tests {
         let mut codewords = [0u16; 12];
         let ec = PDF417Encoder::new(&mut codewords, false).append_ascii("12345678987654321 num");
         assert_eq!(ec.used, codewords.len());
-        assert_eq!(&codewords, &[0, 902, 190, 232, 499, 20, 504, 721, 900, 26 * 30 + 27, 13 * 30 + 20, 12 * 30 + 29]);
+        assert_eq!(
+            &codewords,
+            &[
+                0,
+                902,
+                190,
+                232,
+                499,
+                20,
+                504,
+                721,
+                900,
+                26 * 30 + 27,
+                13 * 30 + 20,
+                12 * 30 + 29
+            ]
+        );
     }
 
     #[test]
@@ -519,7 +579,13 @@ mod tests {
             //             [                        p1                 ][ p2 ]
             .append_ascii("123456789876543211234567898765432112345678987654321");
         assert_eq!(ec.used, codewords.len());
-        assert_eq!(&codewords, &[0, 902, 491, 81, 137, 725, 651, 455, 511, 858, 135, 138, 488, 568, 447, 553, 198, /* p2 */ 21, 715, 821]);
+        assert_eq!(
+            &codewords,
+            &[
+                0, 902, 491, 81, 137, 725, 651, 455, 511, 858, 135, 138, 488, 568, 447, 553, 198,
+                /* p2 */ 21, 715, 821
+            ]
+        );
     }
 
     #[test]
@@ -533,18 +599,62 @@ mod tests {
     #[test]
     fn test_generate_ascii_with_digits() {
         let mut codewords = [0u16; 17];
-        let ec = PDF417Encoder::new(&mut codewords, false).append_ascii("encoded 0123456789 as digits");
+        let ec =
+            PDF417Encoder::new(&mut codewords, false).append_ascii("encoded 0123456789 as digits");
         assert_eq!(ec.used, codewords.len());
-        assert_eq!(&codewords, &[0, 27 * 30 + 4, 13 * 30 + 2, 14 * 30 + 3, 4 * 30 + 3, 26 * 30 + 28, 0 * 30 + 1, 2 * 30 + 3, 4 * 30 + 5, 6 * 30 + 7, 8 * 30 + 9,
-            26 * 30 + 27, 0 * 30 + 18, 26 * 30 + 3, 8 * 30 + 6, 8 * 30 + 19, 18 * 30 + 29]);
+        assert_eq!(
+            &codewords,
+            &[
+                0,
+                27 * 30 + 4,
+                13 * 30 + 2,
+                14 * 30 + 3,
+                4 * 30 + 3,
+                26 * 30 + 28,
+                0 * 30 + 1,
+                2 * 30 + 3,
+                4 * 30 + 5,
+                6 * 30 + 7,
+                8 * 30 + 9,
+                26 * 30 + 27,
+                0 * 30 + 18,
+                26 * 30 + 3,
+                8 * 30 + 6,
+                8 * 30 + 19,
+                18 * 30 + 29
+            ]
+        );
     }
 
     #[test]
     fn test_generate_ascii_punc_mixed() {
         let mut codewords = [0u16; 18];
-        let ec = PDF417Encoder::new(&mut codewords, false).append_ascii("This! Is a `quote (100%)`.");
+        let ec =
+            PDF417Encoder::new(&mut codewords, false).append_ascii("This! Is a `quote (100%)`.");
         assert_eq!(ec.used, codewords.len());
-        assert_eq!(&codewords, &[0, 19 * 30 + 27, 7 * 30 + 8, 18 * 30 + 29, 10 * 30 + 26, 27 * 30 + 8, 18 * 30 + 26, 0 * 30 + 26, 29 * 30 + 8, 16 * 30 + 20, 14 * 30 + 19, 4 * 30 + 26, 29 * 30 + 23, 28 * 30 + 1, 0 * 30 + 0, 21 * 30 + 25, 24 * 30 + 8, 17 * 30 + 29]);
+        assert_eq!(
+            &codewords,
+            &[
+                0,
+                19 * 30 + 27,
+                7 * 30 + 8,
+                18 * 30 + 29,
+                10 * 30 + 26,
+                27 * 30 + 8,
+                18 * 30 + 26,
+                0 * 30 + 26,
+                29 * 30 + 8,
+                16 * 30 + 20,
+                14 * 30 + 19,
+                4 * 30 + 26,
+                29 * 30 + 23,
+                28 * 30 + 1,
+                0 * 30 + 0,
+                21 * 30 + 25,
+                24 * 30 + 8,
+                17 * 30 + 29
+            ]
+        );
     }
 
     #[test]
@@ -560,7 +670,10 @@ mod tests {
         let mut codewords = [0u16; 11];
         let ec = PDF417Encoder::new(&mut codewords, false).append_bytes(b"encode bin");
         assert_eq!(ec.used, codewords.len());
-        assert_eq!(&codewords, &[0, 901, 169, 883, 224, 680, 517, 32, 98, 105, 110]);
+        assert_eq!(
+            &codewords,
+            &[0, 901, 169, 883, 224, 680, 517, 32, 98, 105, 110]
+        );
     }
 
     #[test]
@@ -572,12 +685,27 @@ mod tests {
             .append_num(42)
             .append_bytes(b"encode bin");
         assert_eq!(ec.used, codewords.len());
-        assert_eq!(&codewords, &[
-            0,
-            19 * 30 + 27, 4 * 30 + 18, 19 * 30 + 29,
-            902, 142,
-            901, 169, 883, 224, 680, 517, 32, 98, 105, 110
-        ]);
+        assert_eq!(
+            &codewords,
+            &[
+                0,
+                19 * 30 + 27,
+                4 * 30 + 18,
+                19 * 30 + 29,
+                902,
+                142,
+                901,
+                169,
+                883,
+                224,
+                680,
+                517,
+                32,
+                98,
+                105,
+                110
+            ]
+        );
     }
 
     #[test]
@@ -591,20 +719,38 @@ mod tests {
             .append_bytes(b"encode bin")
             .seal(0);
 
-        assert_eq!(&codewords, &[
-            17,
-            19 * 30 + 27, 4 * 30 + 18, 19 * 30 + 29,
-            902, 142, 142,
-            901, 169, 883, 224, 680, 517, 32, 98, 105, 110,
-            // ecc
-            516, 287
-        ]);
+        assert_eq!(
+            &codewords,
+            &[
+                17,
+                19 * 30 + 27,
+                4 * 30 + 18,
+                19 * 30 + 29,
+                902,
+                142,
+                142,
+                901,
+                169,
+                883,
+                224,
+                680,
+                517,
+                32,
+                98,
+                105,
+                110,
+                // ecc
+                516,
+                287
+            ]
+        );
     }
 
     #[test]
     fn test_seal_micro() {
         use crate::tables::{M_PDF417_VARIANTS, M_PDF417_VARIANTS_COUNT};
-        let mut codewords = [0u16; 1 + 3 + 3 + 10 + M_PDF417_VARIANTS[2 * M_PDF417_VARIANTS_COUNT + 0] as usize];
+        let mut codewords =
+            [0u16; 1 + 3 + 3 + 10 + M_PDF417_VARIANTS[2 * M_PDF417_VARIANTS_COUNT + 0] as usize];
 
         PDF417Encoder::new(&mut codewords, true)
             .append_ascii("Test")
@@ -613,13 +759,35 @@ mod tests {
             .append_bytes(b"encode bin")
             .seal(0);
 
-        assert_eq!(&codewords, &[
-            900,
-            19 * 30 + 27, 4 * 30 + 18, 19 * 30 + 29,
-            902, 142, 142,
-            901, 169, 883, 224, 680, 517, 32, 98, 105, 110,
-            // ecc
-            383, 745, 811, 163, 659, 400, 129
-        ]);
+        assert_eq!(
+            &codewords,
+            &[
+                900,
+                19 * 30 + 27,
+                4 * 30 + 18,
+                19 * 30 + 29,
+                902,
+                142,
+                142,
+                901,
+                169,
+                883,
+                224,
+                680,
+                517,
+                32,
+                98,
+                105,
+                110,
+                // ecc
+                383,
+                745,
+                811,
+                163,
+                659,
+                400,
+                129
+            ]
+        );
     }
 }

@@ -1,4 +1,6 @@
-use labelize::barcodes::{code128, code39, ean13, twooffive, pdf417, aztec, datamatrix, qrcode, maxicode};
+use labelize::barcodes::{
+    aztec, code128, code39, datamatrix, ean13, maxicode, pdf417, qrcode, twooffive,
+};
 use labelize::elements::barcode_qr::QrErrorCorrectionLevel;
 
 // --- Code128 ---
@@ -29,22 +31,35 @@ fn code128_no_mode_strips_prefix_from_display() {
     let (img, text) = code128::encode_no_mode(">;382436>6CODE128>752375152", 100, 2)
         .expect("encode_no_mode failed");
     assert!(img.width() > 0);
-    assert!(!text.contains('>'), "display text should not contain '>' prefix codes: {}", text);
-    assert!(text.contains("382436"), "display text should contain '382436': {}", text);
-    assert!(text.contains("CODE128"), "display text should contain 'CODE128': {}", text);
+    assert!(
+        !text.contains('>'),
+        "display text should not contain '>' prefix codes: {}",
+        text
+    );
+    assert!(
+        text.contains("382436"),
+        "display text should contain '382436': {}",
+        text
+    );
+    assert!(
+        text.contains("CODE128"),
+        "display text should contain 'CODE128': {}",
+        text
+    );
 }
 
 #[test]
 fn code128_no_mode_default_code_b() {
     // Mode N without explicit prefix should default to Code B (not auto Code C)
-    let (img1, text1) = code128::encode_no_mode("12345678", 100, 2)
-        .expect("encode_no_mode failed");
+    let (img1, text1) = code128::encode_no_mode("12345678", 100, 2).expect("encode_no_mode failed");
     // In Code B, each digit is 1 symbol; in Code C, pairs are 1 symbol.
     // Code B (8 data + start + check + stop) vs Code C (4 pairs + start + check + stop)
     // Code B should produce a wider barcode
-    let img2 = code128::encode_auto("12345678", 100, 2)
-        .expect("encode_auto failed");
-    assert!(img1.width() > img2.width(), "Mode N without prefix should use Code B (wider), not auto Code C");
+    let img2 = code128::encode_auto("12345678", 100, 2).expect("encode_auto failed");
+    assert!(
+        img1.width() > img2.width(),
+        "Mode N without prefix should use Code B (wider), not auto Code C"
+    );
     assert_eq!(text1, "12345678");
 }
 
@@ -56,7 +71,10 @@ fn code128_auto_with_fnc1() {
     // With FNC1 + 10 digits: Start C, FNC1, 5 pairs, check, stop = 9 symbols
     // Without FNC1: Start C, 5 pairs, check, stop = 8 symbols
     let img_no_fnc1 = code128::encode_auto("1234567890", 100, 2).expect("encode_auto failed");
-    assert!(img.width() > img_no_fnc1.width(), "FNC1 should add one symbol width");
+    assert!(
+        img.width() > img_no_fnc1.width(),
+        "FNC1 should add one symbol width"
+    );
 }
 
 // --- Code39 ---

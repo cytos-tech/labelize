@@ -13,12 +13,12 @@
 //! const ROWS: u8 = 5;
 //! const WIDTH: usize = pdf417_width!(COLS);
 //! const HEIGHT: usize = pdf417_height!(ROWS);
-//! 
+//!
 //! // High-level encoding
 //! let mut input = [0u16; (ROWS * COLS) as usize];
 //! let (level, _) = PDF417Encoder::new(&mut input, false)
 //!     .append_ascii("Hello, world!").fit_seal().unwrap();
-//! 
+//!
 //! // Rendering
 //! let mut storage = [false; WIDTH * HEIGHT];
 //! PDF417::new(&input, ROWS, COLS, level).render(&mut storage[..]);
@@ -32,11 +32,11 @@
 //! - **ascii**: efficient encoding of text (alphanumeric + punctuation) with
 //!     support for non-displyable ASCII values which are encoded as raw bytes.
 //! - **bytes**: binary data as bytes
-//! 
+//!
 //! An additional **UTF-8** mode is available which allows encoding of UTF-8 strings
 //! using an ECI identifier and byte encoding mode (note that this encoding takes
 //! significantly more space than the ASCII mode).
-//! 
+//!
 //! > See the different methods available on [PDF417Encoder] struct.
 //!
 //! ### MicroPDF417
@@ -69,15 +69,18 @@
 // feature now stable
 
 mod tables;
-use tables::{HL_TO_LL, M_PDF417_VARIANTS, M_PDF417_VARIANTS_COUNT, M_PDF417_RAP, M_PDF417_SIDE, M_PDF417_CENTER};
+use tables::{
+    HL_TO_LL, M_PDF417_CENTER, M_PDF417_RAP, M_PDF417_SIDE, M_PDF417_VARIANTS,
+    M_PDF417_VARIANTS_COUNT,
+};
 
 pub mod ecc;
 pub mod high_level;
 pub use high_level::*;
-pub use tables::{get_variant, find_variant, variant_dim};
+pub use tables::{find_variant, get_variant, variant_dim};
 
 const START: u32 = 0b11111111010101000;
-const   END: u32 = 0b111111101000101001;
+const END: u32 = 0b111111101000101001;
 
 /// Size in pixels of the PDF417 start pattern
 pub const START_PATTERN_LEN: u8 = 17;
@@ -134,14 +137,18 @@ pub struct BoolSliceRenderConfig {
     i: usize,
     row_start: usize,
     scale: (u32, u32),
-    inverted: bool
+    inverted: bool,
 }
 
 impl RenderTarget for [bool] {
     type State = BoolSliceRenderConfig;
 
     fn begin(&self, (_, _, scale, inverted): PDF417Config) -> Self::State {
-        BoolSliceRenderConfig { scale, inverted, ..Default::default() }
+        BoolSliceRenderConfig {
+            scale,
+            inverted,
+            ..Default::default()
+        }
     }
 
     fn row_start(&mut self, state: &mut Self::State) {
@@ -154,7 +161,7 @@ impl RenderTarget for [bool] {
             let mut i = state.i;
             let len = state.i - state.row_start;
             for _ in 0..(w - 1) {
-                self.copy_within((state.row_start)..(state.row_start+len), i);
+                self.copy_within((state.row_start)..(state.row_start + len), i);
                 i += len;
             }
             state.i = i;
@@ -179,13 +186,15 @@ impl RenderTarget for [bool] {
 #[derive(Debug, Default)]
 struct BitShifter {
     cursor: usize,
-    bit: u8
+    bit: u8,
 }
 
 impl BitShifter {
     #[inline(always)]
     pub fn shift(&mut self, storage: &mut [u8], v: bool) {
-        if v { storage[self.cursor] |= 1 << (7 - self.bit); }
+        if v {
+            storage[self.cursor] |= 1 << (7 - self.bit);
+        }
         self.bit += 1;
         if self.bit == 8 {
             self.cursor += 1;
@@ -218,14 +227,18 @@ pub struct ByteSliceRenderConfig {
     bs: BitShifter,
     row_start: usize,
     inverted: bool,
-    scale: (u32, u32)
+    scale: (u32, u32),
 }
 
 impl RenderTarget for [u8] {
     type State = ByteSliceRenderConfig;
 
     fn begin(&self, (_, _, scale, inverted): PDF417Config) -> Self::State {
-        ByteSliceRenderConfig { scale, inverted, ..Default::default() }
+        ByteSliceRenderConfig {
+            scale,
+            inverted,
+            ..Default::default()
+        }
     }
 
     fn row_start(&mut self, state: &mut Self::State) {
@@ -244,7 +257,7 @@ impl RenderTarget for [u8] {
             let j = state.row_start;
             let len = i - j;
             for _ in 0..(h - 1) {
-                self.copy_within(j..(j+len), i);
+                self.copy_within(j..(j + len), i);
                 i += len;
             }
             state.bs.move_to(i);
@@ -270,7 +283,7 @@ const LEADING_ONE: u32 = 1 << 16;
 macro_rules! cw {
     ($tb:ident, $val:expr) => {
         LEADING_ONE + HL_TO_LL[$tb * 929 + $val as usize] as u32
-    }
+    };
 }
 
 #[macro_export]
@@ -286,10 +299,13 @@ macro_rules! pdf417_width {
     };
     ($cols:expr, $scale_x:expr, $truncated:expr) => {
         if $truncated {
-            (pdf417::START_PATTERN_LEN as usize + 17 + $cols as usize * 17 + 1)
-                * $scale_x as usize
+            (pdf417::START_PATTERN_LEN as usize + 17 + $cols as usize * 17 + 1) * $scale_x as usize
         } else {
-            (pdf417::START_PATTERN_LEN as usize + 17 + $cols as usize * 17 + 17 + pdf417::END_PATTERN_LEN as usize)
+            (pdf417::START_PATTERN_LEN as usize
+                + 17
+                + $cols as usize * 17
+                + 17
+                + pdf417::END_PATTERN_LEN as usize)
                 * $scale_x as usize
         }
     };
@@ -317,24 +333,40 @@ pub struct PDF417<'a> {
     level: u8,
     scale: (u32, u32),
     truncated: bool,
-    inverted: bool
+    inverted: bool,
 }
 
 impl<'a> PDF417<'a> {
     /// Creates a new PDF417 with the user's data section (codewords slice),
     /// the level of error correction and the layout configuration
-    /// (rows and cols). The total codewords capacity is calculated with 
+    /// (rows and cols). The total codewords capacity is calculated with
     /// rows \* cols and must be greater or equal to the number of codewords
     /// in the `codewords` slice. Please make sure your codewords
     /// slice is valid, you can use [PDF417Encoder] to fill it accordingly.
     pub const fn new(codewords: &'a [u16], rows: u8, cols: u8, level: u8) -> Self {
-        assert!(rows >= MIN_ROWS && rows <= MAX_ROWS, "The number of rows must be between 3 and 90");
-        assert!(cols >= MIN_COLS && cols <= MAX_COLS, "The number of columns must be between 1 and 30");
-        assert!(codewords.len() == (rows as usize * cols as usize),
-            "The data will not fit in the provided configuration");
+        assert!(
+            rows >= MIN_ROWS && rows <= MAX_ROWS,
+            "The number of rows must be between 3 and 90"
+        );
+        assert!(
+            cols >= MIN_COLS && cols <= MAX_COLS,
+            "The number of columns must be between 1 and 30"
+        );
+        assert!(
+            codewords.len() == (rows as usize * cols as usize),
+            "The data will not fit in the provided configuration"
+        );
         assert!(level < 9, "ECC level must be between 0 and 8 inclusive");
 
-        PDF417 { codewords, rows, cols, level, scale: (1, 1), truncated: false, inverted: false }
+        PDF417 {
+            codewords,
+            rows,
+            cols,
+            level,
+            scale: (1, 1),
+            truncated: false,
+            inverted: false,
+        }
     }
 
     /// Returns if the PDF417 is set to be rendered as a Truncated PDF417.
@@ -407,7 +439,7 @@ impl<'a> PDF417<'a> {
         self.rows
     }
 
-    /// Get the number of columns of the PDF417. This is used to lay down the 
+    /// Get the number of columns of the PDF417. This is used to lay down the
     /// start, left, right and end indicators in the render function.
     pub const fn cols(&self) -> u8 {
         self.cols
@@ -415,25 +447,41 @@ impl<'a> PDF417<'a> {
 
     /// Set the dimensions of the PDF417 as (number of rows, number of cols).
     pub const fn with_dimensions(mut self, (rows, cols): (u8, u8)) -> Self {
-        assert!(rows >= MIN_ROWS && rows <= MAX_ROWS, "The number of rows must be between 3 and 90");
-        assert!(cols >= MIN_COLS && cols <= MAX_COLS, "The number of columns must be between 1 and 30");
-        assert!(self.codewords.len() == (rows as usize * cols as usize),
-            "The data will not fit in the provided configuration");
+        assert!(
+            rows >= MIN_ROWS && rows <= MAX_ROWS,
+            "The number of rows must be between 3 and 90"
+        );
+        assert!(
+            cols >= MIN_COLS && cols <= MAX_COLS,
+            "The number of columns must be between 1 and 30"
+        );
+        assert!(
+            self.codewords.len() == (rows as usize * cols as usize),
+            "The data will not fit in the provided configuration"
+        );
         self.rows = rows;
         self.cols = cols;
         self
-    } 
+    }
 
     /// Set the number of columns of the PDF417.
     pub const fn set_dimensions(&mut self, (rows, cols): (u8, u8)) -> &mut Self {
-        assert!(rows >= MIN_ROWS && rows <= MAX_ROWS, "The number of rows must be between 3 and 90");
-        assert!(cols >= MIN_COLS && cols <= MAX_COLS, "The number of columns must be between 1 and 30");
-        assert!(self.codewords.len() == (rows as usize * cols as usize),
-            "The data will not fit in the provided configuration");
+        assert!(
+            rows >= MIN_ROWS && rows <= MAX_ROWS,
+            "The number of rows must be between 3 and 90"
+        );
+        assert!(
+            cols >= MIN_COLS && cols <= MAX_COLS,
+            "The number of columns must be between 1 and 30"
+        );
+        assert!(
+            self.codewords.len() == (rows as usize * cols as usize),
+            "The data will not fit in the provided configuration"
+        );
         self.rows = rows;
         self.cols = cols;
         self
-    } 
+    }
 
     /// Render the PDF417 to a suitable render target. The scale, truncated,
     /// cols, and rows configuration values are used here to lay down the
@@ -458,12 +506,13 @@ impl<'a> PDF417<'a> {
             storage.append_bits(&mut state, START, START_PATTERN_LEN);
 
             // row left pattern
-            let cw = (row / 3) * 30 + match table {
-                0 => rows_val,
-                1 => level_val,
-                2 => cols_val,
-                _ => unreachable!()
-            };
+            let cw = (row / 3) * 30
+                + match table {
+                    0 => rows_val,
+                    1 => level_val,
+                    2 => cols_val,
+                    _ => unreachable!(),
+                };
             storage.append_bits(&mut state, cw!(table, cw), 17);
 
             for col in 0..cols {
@@ -476,12 +525,13 @@ impl<'a> PDF417<'a> {
                 storage.append_bits(&mut state, 1, 1);
             } else {
                 // row right codeword
-                let cw = (row / 3) * 30 + match table {
-                    0 => cols_val,
-                    1 => rows_val,
-                    2 => level_val,
-                    _ => unreachable!()
-                };
+                let cw = (row / 3) * 30
+                    + match table {
+                        0 => cols_val,
+                        1 => rows_val,
+                        2 => level_val,
+                        _ => unreachable!(),
+                    };
                 storage.append_bits(&mut state, cw!(table, cw), 17);
 
                 storage.append_bits(&mut state, END, END_PATTERN_LEN);
@@ -489,7 +539,11 @@ impl<'a> PDF417<'a> {
 
             storage.row_end(&mut state);
 
-            if table == 2 { table = 0; } else { table += 1 };
+            if table == 2 {
+                table = 0;
+            } else {
+                table += 1
+            };
         }
 
         storage.end(state);
@@ -505,8 +559,7 @@ macro_rules! m_pdf417_width {
         m_pdf417_width!($cols, 1);
     };
     ($cols:expr, $scale_x:expr) => {
-        (10 + $cols as usize * 17 + ($cols as usize / 3) * 10 + 10 + 1)
-            * $scale_x as usize
+        (10 + $cols as usize * 17 + ($cols as usize / 3) * 10 + 10 + 1) * $scale_x as usize
     };
 }
 
@@ -529,7 +582,7 @@ pub struct MicroPDF417<'a> {
     codewords: &'a [u16],
     variant: u8,
     scale: (u32, u32),
-    inverted: bool
+    inverted: bool,
 }
 
 impl<'a> MicroPDF417<'a> {
@@ -539,7 +592,12 @@ impl<'a> MicroPDF417<'a> {
     /// slice is valid, you can use [PDF417Encoder] to fill it accordingly.
     pub const fn new(codewords: &'a [u16], variant: u8) -> Self {
         assert!(variant <= 34);
-        MicroPDF417 { codewords, variant, scale: (1, 2), inverted: false }
+        MicroPDF417 {
+            codewords,
+            variant,
+            scale: (1, 2),
+            inverted: false,
+        }
     }
 
     /// Returns the scale of the MicroPDF417 as (Scale X axis, Scale Y axis).
@@ -628,7 +686,11 @@ impl<'a> MicroPDF417<'a> {
                 storage.append_bits(&mut state, M_PDF417_CENTER[center] as u32, 10);
 
                 while col < cols {
-                    storage.append_bits(&mut state, cw!(table, self.codewords[row * cols + col]), 17);
+                    storage.append_bits(
+                        &mut state,
+                        cw!(table, self.codewords[row * cols + col]),
+                        17,
+                    );
                     col += 1;
                 }
             }
@@ -636,10 +698,26 @@ impl<'a> MicroPDF417<'a> {
             storage.append_bits(&mut state, ((M_PDF417_SIDE[right] as u32) << 1) | 1, 11);
             storage.row_end(&mut state);
 
-            if left == 51 { left = 0; } else { left += 1; }
-            if center == 51 { center = 0; } else { center += 1; }
-            if right == 51 { right = 0; } else { right += 1; }
-            if table == 2 { table = 0; } else { table += 1; }
+            if left == 51 {
+                left = 0;
+            } else {
+                left += 1;
+            }
+            if center == 51 {
+                center = 0;
+            } else {
+                center += 1;
+            }
+            if right == 51 {
+                right = 0;
+            } else {
+                right += 1;
+            }
+            if table == 2 {
+                table = 0;
+            } else {
+                table += 1;
+            }
         }
 
         storage.end(state);
@@ -658,7 +736,10 @@ mod tests {
         t.append_bits(&mut state, 0b11, 2);
         t.append_bits(&mut state, 0b00111, 5);
 
-        assert_eq!(&t, &[true, true, false, false, false, true, true, true, false, false, true, true, true]);
+        assert_eq!(
+            &t,
+            &[true, true, false, false, false, true, true, true, false, false, true, true, true]
+        );
     }
 
     #[test]
@@ -670,7 +751,10 @@ mod tests {
         t.append_bits(&mut state, 0b11, 2);
         t.append_bits(&mut state, 0b0000111, 7);
 
-        assert_eq!(&t, &[0b10101010, 0b10101010, 0b11110001, 0b11000111, 0b00001110]);
+        assert_eq!(
+            &t,
+            &[0b10101010, 0b10101010, 0b11110001, 0b11000111, 0b00001110]
+        );
     }
 
     #[test]
@@ -680,10 +764,24 @@ mod tests {
         t.row_start(&mut state);
         t.append_bits(&mut state, 0b110001, 6);
 
-        assert_eq!(&t[..(t.len()/2)], &[true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, true, true, true], "Testing X scale");
+        assert_eq!(
+            &t[..(t.len() / 2)],
+            &[
+                true, true, true, true, true, true, false, false, false, false, false, false,
+                false, false, false, true, true, true
+            ],
+            "Testing X scale"
+        );
 
         t.row_end(&mut state);
-        assert_eq!(&t[(t.len()/2)..], &[true, true, true, true, true, true, false, false, false, false, false, false, false, false, false, true, true, true],"Testing Y scale");
+        assert_eq!(
+            &t[(t.len() / 2)..],
+            &[
+                true, true, true, true, true, true, false, false, false, false, false, false,
+                false, false, false, true, true, true
+            ],
+            "Testing Y scale"
+        );
     }
 
     #[test]
@@ -693,9 +791,17 @@ mod tests {
         t.row_start(&mut state);
         t.append_bits(&mut state, 0b01000111, 8);
 
-        assert_eq!(&t[..(t.len()/2)], &[0b00011100, 0b00000001, 0b11111111], "Testing X scale");
+        assert_eq!(
+            &t[..(t.len() / 2)],
+            &[0b00011100, 0b00000001, 0b11111111],
+            "Testing X scale"
+        );
 
         t.row_end(&mut state);
-        assert_eq!(&t[(t.len()/2)..], &[0b00011100, 0b00000001, 0b11111111], "Testing Y scale");
+        assert_eq!(
+            &t[(t.len() / 2)..],
+            &[0b00011100, 0b00000001, 0b11111111],
+            "Testing Y scale"
+        );
     }
 }

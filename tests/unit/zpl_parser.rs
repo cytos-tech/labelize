@@ -1,5 +1,5 @@
-use labelize::ZplParser;
 use labelize::elements::label_element::LabelElement;
+use labelize::ZplParser;
 
 fn parse(zpl: &str) -> Vec<labelize::LabelInfo> {
     let mut parser = ZplParser::new();
@@ -267,7 +267,10 @@ fn fh_decodes_hex_in_fd() {
 #[test]
 fn gd_produces_diagonal_line() {
     let labels = parse("^XA^FO10,10^GD200,100,5^FS^XZ");
-    let has_diag = labels[0].elements.iter().any(|e| matches!(e, LabelElement::DiagonalLine(_)));
+    let has_diag = labels[0]
+        .elements
+        .iter()
+        .any(|e| matches!(e, LabelElement::DiagonalLine(_)));
     assert!(has_diag, "expected DiagonalLine element");
 }
 
@@ -275,11 +278,12 @@ fn gd_produces_diagonal_line() {
 
 #[test]
 fn multiple_elements_in_one_label() {
-    let labels = parse(
-        "^XA^FO10,10^GB200,100,3^FS^FO50,150^A0N,30,30^FDText^FS^XZ",
-    );
+    let labels = parse("^XA^FO10,10^GB200,100,3^FS^FO50,150^A0N,30,30^FDText^FS^XZ");
     assert_eq!(labels.len(), 1);
-    assert!(labels[0].elements.len() >= 2, "expected at least 2 elements");
+    assert!(
+        labels[0].elements.len() >= 2,
+        "expected at least 2 elements"
+    );
 }
 
 // --- ^A font parsing edge cases ---
@@ -331,5 +335,8 @@ fn fo_right_justification() {
             _ => None,
         })
         .expect("expected Text element");
-    assert_eq!(text.alignment, labelize::elements::field_alignment::FieldAlignment::Right);
+    assert_eq!(
+        text.alignment,
+        labelize::elements::field_alignment::FieldAlignment::Right
+    );
 }

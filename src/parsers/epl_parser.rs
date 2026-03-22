@@ -14,6 +14,12 @@ use crate::elements::text_field::TextField;
 
 pub struct EplParser;
 
+impl Default for EplParser {
+    fn default() -> Self {
+        Self
+    }
+}
+
 impl EplParser {
     pub fn new() -> Self {
         EplParser
@@ -155,7 +161,10 @@ fn parse_epl_text(line: &str, ref_x: i32, ref_y: i32) -> Result<Option<LabelElem
             let parts: Vec<&str> = param_str.split(',').collect();
 
             if parts.len() < 7 {
-                return Err(format!("EPL A command requires at least 7 parameters, got {}", parts.len()));
+                return Err(format!(
+                    "EPL A command requires at least 7 parameters, got {}",
+                    parts.len()
+                ));
             }
 
             let x: i32 = parts[0].trim().parse().unwrap_or(0);
@@ -176,7 +185,9 @@ fn parse_epl_text(line: &str, ref_x: i32, ref_y: i32) -> Result<Option<LabelElem
             };
 
             Ok(Some(LabelElement::Text(TextField {
-                reverse_print: ReversePrint { value: reverse == "R" },
+                reverse_print: ReversePrint {
+                    value: reverse == "R",
+                },
                 font: FontInfo {
                     name: "0".to_string(),
                     width: font_width,
@@ -211,7 +222,10 @@ fn parse_epl_barcode(line: &str, ref_x: i32, ref_y: i32) -> Result<Option<LabelE
             let parts: Vec<&str> = param_str.split(',').collect();
 
             if parts.len() < 8 {
-                return Err(format!("EPL B command requires at least 8 parameters, got {}", parts.len()));
+                return Err(format!(
+                    "EPL B command requires at least 8 parameters, got {}",
+                    parts.len()
+                ));
             }
 
             let x: i32 = parts[0].trim().parse().unwrap_or(0);
@@ -303,7 +317,10 @@ fn parse_epl_line(line: &str, ref_x: i32, ref_y: i32) -> Result<Option<LabelElem
     let parts: Vec<&str> = param_str.split(',').collect();
 
     if parts.len() < 4 {
-        return Err(format!("EPL LO command requires 4 parameters, got {}", parts.len()));
+        return Err(format!(
+            "EPL LO command requires 4 parameters, got {}",
+            parts.len()
+        ));
     }
 
     let x: i32 = parts[0].trim().parse().unwrap_or(0);

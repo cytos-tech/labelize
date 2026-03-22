@@ -1,12 +1,12 @@
+use crate::common::render_helpers;
 use labelize::elements::drawer_options::DrawerOptions;
-use labelize::elements::label_element::LabelElement;
-use labelize::elements::label_info::LabelInfo;
 use labelize::elements::graphic_box::GraphicBox;
 use labelize::elements::graphic_circle::GraphicCircle;
+use labelize::elements::label_element::LabelElement;
+use labelize::elements::label_info::LabelInfo;
 use labelize::elements::label_position::LabelPosition;
 use labelize::elements::line_color::LineColor;
 use labelize::elements::reverse_print::ReversePrint;
-use crate::common::render_helpers;
 
 fn default_options() -> DrawerOptions {
     render_helpers::default_options()
@@ -239,9 +239,14 @@ fn poi_inverted_label_flips_content() {
                 break;
             }
         }
-        if dark_in_lower_right { break; }
+        if dark_in_lower_right {
+            break;
+        }
     }
-    assert!(dark_in_lower_right, "expected dark pixels in lower-right for inverted label");
+    assert!(
+        dark_in_lower_right,
+        "expected dark pixels in lower-right for inverted label"
+    );
 }
 
 // --- Issue #2: Barcode backgrounds should be transparent ---
@@ -264,7 +269,11 @@ fn barcode_background_is_transparent_text_shows_through() {
             }
         }
     }
-    assert!(dark_count > 100, "expected dark pixels from both text and barcode, got {}", dark_count);
+    assert!(
+        dark_count > 100,
+        "expected dark pixels from both text and barcode, got {}",
+        dark_count
+    );
 }
 
 // --- Issue #3: ^FT positions text by baseline (using font ascent) ---
@@ -281,11 +290,21 @@ fn ft_baseline_positions_text_with_margin_from_top() {
     let mut row0_has_dark = false;
     let mut row1_has_dark = false;
     for x in 0..img.width() {
-        if img.get_pixel(x, 0)[0] < 128 { row0_has_dark = true; }
-        if img.get_pixel(x, 1)[0] < 128 { row1_has_dark = true; }
+        if img.get_pixel(x, 0)[0] < 128 {
+            row0_has_dark = true;
+        }
+        if img.get_pixel(x, 1)[0] < 128 {
+            row1_has_dark = true;
+        }
     }
-    assert!(!row0_has_dark, "row 0 should be white: text should not touch the top edge");
-    assert!(!row1_has_dark, "row 1 should be white: there should be margin from top");
+    assert!(
+        !row0_has_dark,
+        "row 0 should be white: text should not touch the top edge"
+    );
+    assert!(
+        !row1_has_dark,
+        "row 1 should be white: there should be margin from top"
+    );
 }
 
 // --- Issue #5: Diagonal line with thick border draws filled triangle ---
@@ -303,15 +322,27 @@ fn diagonal_line_thick_border_draws_triangle() {
 
     // Top-right corner should be black (inside the primary upper-right triangle)
     let tr = img.get_pixel(210, 105);
-    assert!(tr[0] < 128, "top-right of triangle should be black, got {:?}", tr);
+    assert!(
+        tr[0] < 128,
+        "top-right of triangle should be black, got {:?}",
+        tr
+    );
 
     // Bottom-left corner should be white (inside the opposite lower-left triangle)
     let bl = img.get_pixel(105, 215);
-    assert!(bl[0] > 128, "bottom-left should be white (opposite triangle), got {:?}", bl);
+    assert!(
+        bl[0] > 128,
+        "bottom-left should be white (opposite triangle), got {:?}",
+        bl
+    );
 
     // Upper-right region should be black
     let upper_right = img.get_pixel(200, 110);
-    assert!(upper_right[0] < 128, "upper-right region should be black, got {:?}", upper_right);
+    assert!(
+        upper_right[0] < 128,
+        "upper-right region should be black, got {:?}",
+        upper_right
+    );
 }
 
 // --- Issue #7: QR code should include quiet zone ---
@@ -333,9 +364,14 @@ fn qr_code_has_quiet_zone() {
                 break;
             }
         }
-        if !all_white_near_origin { break; }
+        if !all_white_near_origin {
+            break;
+        }
     }
-    assert!(all_white_near_origin, "QR should have white quiet zone near (0,0)");
+    assert!(
+        all_white_near_origin,
+        "QR should have white quiet zone near (0,0)"
+    );
 
     // Dark pixels should appear starting around pixel 40 (quiet_zone * magnification).
     let mut has_dark_after_quiet = false;
@@ -346,9 +382,14 @@ fn qr_code_has_quiet_zone() {
                 break;
             }
         }
-        if has_dark_after_quiet { break; }
+        if has_dark_after_quiet {
+            break;
+        }
     }
-    assert!(has_dark_after_quiet, "QR should have dark modules after quiet zone");
+    assert!(
+        has_dark_after_quiet,
+        "QR should have dark modules after quiet zone"
+    );
 }
 
 // --- Issue #8: Barcode interpretation line rotates with barcode ---
@@ -362,22 +403,28 @@ fn barcode_interpretation_line_rotates_with_barcode() {
 
     // The barcode and interpretation line should produce dark pixels
     let has_dark_pixels = img.pixels().any(|p| p[0] < 128);
-    assert!(has_dark_pixels, "barcode with rotated interpretation line should render");
+    assert!(
+        has_dark_pixels,
+        "barcode with rotated interpretation line should render"
+    );
 
     // Compare: render same barcode with Normal orientation
     let zpl_normal = "^XA^FO200,200^BCN,100,Y,N,N^FD12345^FS^XZ";
     let png_normal = render_helpers::render_zpl_to_png(zpl_normal, default_options());
 
     // The rotated version should differ from normal
-    assert_ne!(png, png_normal, "rotated barcode should differ from normal orientation");
+    assert_ne!(
+        png, png_normal,
+        "rotated barcode should differ from normal orientation"
+    );
 }
 
 // --- Issue #9: EAN-13 guard bars should be taller than data bars ---
 
 #[test]
 fn ean13_guard_bars_taller_than_data_bars() {
-    let img = labelize::barcodes::ean13::encode("123456789012", 200, 2)
-        .expect("ean13 encode failed");
+    let img =
+        labelize::barcodes::ean13::encode("123456789012", 200, 2).expect("ean13 encode failed");
 
     // Image should be taller than 200px to accommodate guard bar extension
     let total_height = img.height();
@@ -391,10 +438,14 @@ fn ean13_guard_bars_taller_than_data_bars() {
     let bar_width = 2usize;
     let extended_row = 205u32; // in the guard bar extension area
     let has_guard_extension = (0..bar_width).any(|x| {
-        x < img.width() as usize && extended_row < img.height()
+        x < img.width() as usize
+            && extended_row < img.height()
             && img.get_pixel(x as u32, extended_row)[0] < 128
     });
-    assert!(has_guard_extension, "guard bar at start should extend below data bar area");
+    assert!(
+        has_guard_extension,
+        "guard bar at start should extend below data bar area"
+    );
 }
 
 // --- Issue #11: Code39 interpretation line should show asterisks ---
@@ -417,7 +468,10 @@ fn code39_interpretation_line_shows_asterisks() {
             }
         }
     }
-    assert!(text_dark_count > 0, "interpretation line should render below barcode");
+    assert!(
+        text_dark_count > 0,
+        "interpretation line should render below barcode"
+    );
 }
 
 // --- Issue #4 & #10: text block center alignment ---
@@ -446,7 +500,8 @@ fn text_block_center_alignment_centers_text() {
     assert!(
         diff < 30,
         "text center ({}) should be near block center (300), diff={}",
-        text_center, diff
+        text_center,
+        diff
     );
 }
 
@@ -502,7 +557,11 @@ fn rotated90_ft_text_positions_within_expected_region() {
             }
         }
     }
-    assert!(dark_in_box > 50, "rotated text should have dark pixels inside the box region, got {}", dark_in_box);
+    assert!(
+        dark_in_box > 50,
+        "rotated text should have dark pixels inside the box region, got {}",
+        dark_in_box
+    );
 
     // Text should NOT appear significantly below y=500
     let mut dark_below = 0u32;
@@ -513,5 +572,9 @@ fn rotated90_ft_text_positions_within_expected_region() {
             }
         }
     }
-    assert!(dark_below < 10, "rotated text should not appear below the box, got {} dark pixels", dark_below);
+    assert!(
+        dark_below < 10,
+        "rotated text should not appear below the box, got {} dark pixels",
+        dark_below
+    );
 }

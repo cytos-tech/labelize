@@ -6,7 +6,11 @@ use clap::{Parser, Subcommand, ValueEnum};
 use labelize::{DrawerOptions, EplParser, LabelInfo, Renderer, ZplParser};
 
 #[derive(Parser)]
-#[command(name = "labelize", version, about = "Turn ZPL/EPL into pixels — label rendering, simplified.")]
+#[command(
+    name = "labelize",
+    version,
+    about = "Turn ZPL/EPL into pixels — label rendering, simplified."
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -72,8 +76,24 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Convert { input, output, format, output_type, width, height, dpmm } => {
-            if let Err(e) = convert_file(&input, output.as_deref(), format, output_type, width, height, dpmm) {
+        Commands::Convert {
+            input,
+            output,
+            format,
+            output_type,
+            width,
+            height,
+            dpmm,
+        } => {
+            if let Err(e) = convert_file(
+                &input,
+                output.as_deref(),
+                format,
+                output_type,
+                width,
+                height,
+                dpmm,
+            ) {
                 eprintln!("Error: {}", e);
                 std::process::exit(1);
             }
@@ -111,7 +131,10 @@ fn output_extension(output_type: OutputType) -> &'static str {
 }
 
 fn default_output_path(input: &Path, output_type: OutputType, index: Option<usize>) -> PathBuf {
-    let stem = input.file_stem().and_then(|s| s.to_str()).unwrap_or("output");
+    let stem = input
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("output");
     let ext = output_extension(output_type);
     let parent = input.parent().unwrap_or_else(|| Path::new("."));
     match index {
@@ -152,8 +175,7 @@ fn convert_file(
     height: f64,
     dpmm: i32,
 ) -> Result<(), String> {
-    let content = fs::read(input)
-        .map_err(|e| format!("Failed to read input file: {}", e))?;
+    let content = fs::read(input).map_err(|e| format!("Failed to read input file: {}", e))?;
 
     let fmt = detect_format(input, format);
     let labels = parse_labels(&content, fmt)?;
@@ -175,7 +197,10 @@ fn convert_file(
             Some(p) if !multi => p.to_path_buf(),
             Some(p) => {
                 let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("output");
-                let ext = p.extension().and_then(|s| s.to_str()).unwrap_or(output_extension(output_type));
+                let ext = p
+                    .extension()
+                    .and_then(|s| s.to_str())
+                    .unwrap_or(output_extension(output_type));
                 let parent = p.parent().unwrap_or_else(|| Path::new("."));
                 parent.join(format!("{}_{}.{}", stem, i + 1, ext))
             }
@@ -183,8 +208,7 @@ fn convert_file(
         };
 
         let data = render_label(label, &options, output_type)?;
-        fs::write(&out_path, data)
-            .map_err(|e| format!("Failed to write output file: {}", e))?;
+        fs::write(&out_path, data).map_err(|e| format!("Failed to write output file: {}", e))?;
         println!("Converted {} -> {}", input.display(), out_path.display());
     }
 
@@ -202,7 +226,11 @@ async fn serve(host: String, port: u16) {
     };
 
     async fn health() -> impl IntoResponse {
-        (StatusCode::OK, [(header::CONTENT_TYPE, "application/json")], r#"{"status":"ok"}"#)
+        (
+            StatusCode::OK,
+            [(header::CONTENT_TYPE, "application/json")],
+            r#"{"status":"ok"}"#,
+        )
     }
 
     #[derive(serde::Deserialize)]
@@ -217,9 +245,15 @@ async fn serve(host: String, port: u16) {
         output: Option<String>,
     }
 
-    fn default_width() -> f64 { 102.0 }
-    fn default_height() -> f64 { 152.0 }
-    fn default_dpmm() -> i32 { 8 }
+    fn default_width() -> f64 {
+        102.0
+    }
+    fn default_height() -> f64 {
+        152.0
+    }
+    fn default_dpmm() -> i32 {
+        8
+    }
 
     async fn convert_handler(
         headers: HeaderMap,
@@ -245,7 +279,9 @@ async fn serve(host: String, port: u16) {
 
         let label = match labels.into_iter().next() {
             Some(l) => l,
-            None => return (StatusCode::BAD_REQUEST, "No labels found".to_string()).into_response(),
+            None => {
+                return (StatusCode::BAD_REQUEST, "No labels found".to_string()).into_response()
+            }
         };
 
         let options = DrawerOptions {
@@ -266,7 +302,13 @@ async fn serve(host: String, port: u16) {
         if want_pdf {
             let img = match image::load_from_memory(&buf.into_inner()) {
                 Ok(img) => img.to_rgba8(),
-                Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("image decode: {}", e)).into_response(),
+                Err(e) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        format!("image decode: {}", e),
+                    )
+                        .into_response()
+                }
             };
             let mut pdf_buf = Cursor::new(Vec::new());
             match labelize::encode_pdf(&img, &options, &mut pdf_buf) {
@@ -274,15 +316,21 @@ async fn serve(host: String, port: u16) {
                     StatusCode::OK,
                     [(header::CONTENT_TYPE, "application/pdf")],
                     pdf_buf.into_inner(),
-                ).into_response(),
-                Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, format!("pdf encode: {}", e)).into_response(),
+                )
+                    .into_response(),
+                Err(e) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("pdf encode: {}", e),
+                )
+                    .into_response(),
             }
         } else {
             (
                 StatusCode::OK,
                 [(header::CONTENT_TYPE, "image/png")],
                 buf.into_inner(),
-            ).into_response()
+            )
+                .into_response()
         }
     }
 
@@ -292,6 +340,8 @@ async fn serve(host: String, port: u16) {
 
     let addr = format!("{}:{}", host, port);
     println!("Starting server on {}", addr);
-    let listener = tokio::net::TcpListener::bind(&addr).await.expect("Failed to bind");
+    let listener = tokio::net::TcpListener::bind(&addr)
+        .await
+        .expect("Failed to bind");
     axum::serve(listener, app).await.expect("Server failed");
 }

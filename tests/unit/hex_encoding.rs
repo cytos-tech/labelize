@@ -1,5 +1,5 @@
-use labelize::hex;
 use labelize::encodings;
+use labelize::hex;
 
 // --- Hex escape decoding ---
 

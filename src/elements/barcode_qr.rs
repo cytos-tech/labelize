@@ -1,5 +1,5 @@
-use super::reverse_print::ReversePrint;
 use super::label_position::LabelPosition;
+use super::reverse_print::ReversePrint;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum QrErrorCorrectionLevel {
@@ -33,7 +33,9 @@ pub struct BarcodeQrWithData {
 }
 
 impl BarcodeQrWithData {
-    pub fn get_input_data(&self) -> Result<(String, QrErrorCorrectionLevel, QrCharacterMode), String> {
+    pub fn get_input_data(
+        &self,
+    ) -> Result<(String, QrErrorCorrectionLevel, QrCharacterMode), String> {
         if self.data.len() < 4 {
             return Err("invalid qr barcode data".to_string());
         }
