@@ -1,54 +1,65 @@
-# labelize
+# Labelize — ZPL / EPL Label Renderer
+
+[![Crates.io](https://img.shields.io/crates/v/labelize)](https://crates.io/crates/labelize)
+[![License](https://img.shields.io/github/license/GOODBOY008/labelize)](LICENSE)
+[![Build](https://img.shields.io/github/actions/workflow/status/GOODBOY008/labelize/ci.yml?branch=main)](https://github.com/GOODBOY008/labelize/actions)
 
 > **Turn ZPL/EPL into pixels — label rendering, simplified.**
 
-A fast, embeddable Rust engine that parses ZPL (Zebra Programming Language) and EPL (Eltron Programming Language) label data and renders it to PNG or PDF. Use it as a CLI tool, an HTTP microservice, or a library in your own Rust project.
+Labelize is a fast, open-source Rust engine that parses **ZPL** (Zebra Programming Language) and **EPL** (Eltron Programming Language) label data and renders it to **PNG** or **PDF**. Use it as a **CLI tool**, an **HTTP microservice**, or embed it as a **Rust library** — no printer hardware required.
+
+If you need a self-hosted, offline alternative to [Labelary](http://labelary.com/) for previewing and converting thermal label formats, Labelize has you covered.
+
+## Why Labelize?
+
+| | Labelize | Labelary (web) | Zebra Printer |
+|---|---|---|---|
+| **Offline / self-hosted** | ✅ | ❌ | ✅ |
+| **No hardware needed** | ✅ | ✅ | ❌ |
+| **Open source** | ✅ | ❌ | ❌ |
+| **EPL support** | ✅ | ❌ | ✅ |
+| **PDF output** | ✅ | ❌ | ❌ |
+| **Embeddable library** | ✅ | ❌ | ❌ |
+| **REST API** | ✅ | ✅ | ❌ |
 
 ## Features
 
-- **ZPL Parser** — Full ZPL command support including text, barcodes, graphics, stored formats, and graphic fields
+- **ZPL Parser** — 30+ ZPL commands: text, barcodes, graphics, stored formats, graphic fields, field blocks, and more
 - **EPL Parser** — EPL command support for text, barcodes, line draw, and reference points
-- **Barcode Support** — Code 128, Code 39, EAN-13, Interleaved 2-of-5, PDF417, Aztec, DataMatrix, QR Code, MaxiCode
-- **PNG & PDF Output** — Monochrome 1-bit PNG or embedded PDF output
-- **CLI Tool** — Convert label files from the command line with auto-detection, multi-label support, and customizable dimensions
-- **HTTP Server** — RESTful API for label conversion with format detection via Content-Type header
-- **Embedded Fonts** — No runtime font dependencies; includes Helvetica Bold Condensed, DejaVu Sans Mono, and ZPL GS fonts
-- **Library API** — Use as a Rust library in your own applications
+- **10 Barcode Symbologies** — Code 128, Code 39, EAN-13, Interleaved 2-of-5, PDF417, Aztec, DataMatrix, QR Code, MaxiCode
+- **PNG & PDF Output** — Monochrome 1-bit PNG or single-page embedded PDF output
+- **CLI Tool** — Convert ZPL/EPL files from the command line with format auto-detection, multi-label support, and customizable label dimensions
+- **HTTP Microservice** — RESTful API for label conversion with format detection via `Content-Type` header; deploy anywhere with Docker or bare metal
+- **Embedded Fonts** — Zero runtime font dependencies; bundles Helvetica Bold Condensed, DejaVu Sans Mono, and ZPL GS fonts
+- **Rust Library** — Integrate label rendering directly into your Rust application via the public API
 
 ## Quick Start
 
-### Install
+### Installation
 
 ```bash
-# From source
-cargo install --path .
-
-# Or via Homebrew
+# Via Homebrew (macOS / Linux)
 brew tap GOODBOY008/homebrew-labelize && brew install labelize
+
+# From source (requires Rust toolchain)
+cargo install --path .
 ```
 
-### Convert a label
+### Convert a ZPL label to PNG
 
 ```bash
-# ZPL → PNG (auto-detected)
-labelize convert label.zpl
-
-# EPL → PNG
-labelize convert label.epl
-
-# ZPL → PDF
-labelize convert label.zpl -t pdf
-
-# Custom dimensions (100×62mm at 12 dpmm)
-labelize convert label.zpl --width 100 --height 62 --dpmm 12
+labelize convert label.zpl          # → label.png  (format auto-detected)
+labelize convert label.epl          # EPL works too
+labelize convert label.zpl -t pdf   # output as PDF
+labelize convert label.zpl --width 100 --height 62 --dpmm 12  # custom dimensions
 ```
 
-### Run as HTTP server
+### Run as an HTTP microservice
 
 ```bash
 labelize serve --port 8080
 
-# Convert via API
+# Convert via REST API
 curl -X POST http://localhost:8080/convert \
   -H "Content-Type: application/zpl" \
   -d '^XA^FO50,50^A0N,40,40^FDHello World^FS^XZ' \
@@ -113,17 +124,19 @@ renderer.draw_label_as_png(&labels[0], &mut buf, DrawerOptions::default()).unwra
 std::fs::write("output.png", buf.into_inner()).unwrap();
 ```
 
-## Supported Commands
+## Supported ZPL & EPL Commands
 
-### ZPL
+### ZPL Commands
 
-Text: `^FO` `^FT` `^FD` `^FS` `^A` `^CF` `^FB` `^FR` `^FH` `^FN` `^FW` `^FV`
-Barcodes: `^BC` `^BE` `^B2` `^B3` `^B7` `^BO` `^BX` `^BQ` `^BD` `^BY`
-Graphics: `^GB` `^GC` `^GD` `^GF` `^GS` `~DG` `^IL` `^XG`
-Label: `^XA` `^XZ` `^PW` `^PO` `^LH` `^LR` `^CI`
-Formats: `^DF` `^XF`
+| Category | Commands |
+|----------|----------|
+| **Text & Font** | `^FO` `^FT` `^FD` `^FS` `^A` `^CF` `^FB` `^FR` `^FH` `^FN` `^FW` `^FV` |
+| **Barcodes** | `^BC` (Code 128) `^BE` (EAN-13) `^B2` (Interleaved 2-of-5) `^B3` (Code 39) `^B7` (PDF417) `^BO` (Aztec) `^BX` (DataMatrix) `^BQ` (QR Code) `^BD` (MaxiCode) `^BY` (defaults) |
+| **Graphics** | `^GB` (box) `^GC` (circle) `^GD` (diagonal) `^GF` (graphic field) `^GS` (symbol) `~DG` (download graphic) `^IL` `^XG` |
+| **Label Control** | `^XA` `^XZ` `^PW` `^PO` `^LH` `^LR` `^CI` |
+| **Stored Formats** | `^DF` `^XF` |
 
-### EPL
+### EPL Commands
 
 `N` (new label) · `A` (text) · `B` (barcode) · `LO` (line draw) · `R` (reference point) · `P` (print)
 
@@ -147,22 +160,35 @@ Formats: `^DF` `^XF`
 ## Testing
 
 ```bash
-# Run E2E golden-file tests (compares output against Go reference images)
-cargo test
-
-# Run with verbose output
-cargo test -- --nocapture
+cargo test                         # all tests
+cargo test --test e2e              # golden-file E2E tests
+cargo test --test unit             # unit tests
 ```
 
-57 golden-file E2E tests compare rendered output against reference PNGs from the original Go implementation.
+57 golden-file E2E tests compare rendered output pixel-by-pixel against reference PNGs from the Labelary reference renderer.
 
-## Building
+## Building from Source
 
 ```bash
 cargo build --release
+# Binary: target/release/labelize
 ```
 
-The binary is at `target/release/labelize`.
+## Use Cases
+
+- **Shipping label preview** — Render a ZPL label before sending it to the printer
+- **Warehouse management** — Batch-convert label templates to PDF for archival
+- **E-commerce integrations** — Embed as a microservice to generate shipping label PNGs on the fly
+- **Automated QA** — Validate label content in CI/CD pipelines with golden-file tests
+- **Label design tools** — Use the library API to add real-time ZPL preview to custom applications
+
+## Related Projects & Keywords
+
+Looking for a **ZPL renderer**, **ZPL to PNG converter**, **ZPL to PDF**, **EPL parser**, **Zebra label preview**, **thermal label rendering**, or **Labelary alternative**? Labelize covers all of these.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
 
 ## License
 
