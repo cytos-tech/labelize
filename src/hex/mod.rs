@@ -25,7 +25,11 @@ pub fn decode_escaped_string(value: &str, escape_char: u8) -> Result<String, Str
                     break;
                 }
             }
-            if !bytes.is_empty() {
+            if bytes.is_empty() {
+                // Escape char present but no valid hex followed — emit it literally and advance
+                result.push(chars[i]);
+                i += 1;
+            } else {
                 match String::from_utf8(bytes.clone()) {
                     Ok(s) => result.push_str(&s),
                     Err(_) => {
