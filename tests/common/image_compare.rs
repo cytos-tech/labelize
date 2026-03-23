@@ -8,6 +8,8 @@ pub struct CompareResult {
     pub actual_dims: (u32, u32),
     pub expected_dims: (u32, u32),
     pub diff_image: Option<RgbaImage>,
+    pub actual_image: Option<RgbaImage>,
+    pub expected_image: Option<RgbaImage>,
 }
 
 /// Compare two PNG byte slices. Generates a diff image when pixels differ.
@@ -34,6 +36,8 @@ pub fn compare_images(actual: &[u8], expected: &[u8], _tolerance: f64) -> Compar
             actual_dims,
             expected_dims,
             diff_image: None,
+            actual_image: None,
+            expected_image: None,
         };
     }
 
@@ -68,6 +72,8 @@ pub fn compare_images(actual: &[u8], expected: &[u8], _tolerance: f64) -> Compar
         actual_dims,
         expected_dims,
         diff_image: if diff_count > 0 { Some(diff_img) } else { None },
+        actual_image: Some(actual_img),
+        expected_image: Some(expected_img),
     }
 }
 
@@ -78,3 +84,56 @@ pub fn save_diff_image(name: &str, diff: &RgbaImage) {
     let path = dir.join(format!("{}_diff.png", name));
     diff.save(&path).ok();
 }
+
+/// Save a side-by-side comparison image: left=Labelary (expected), right=Labelize (actual).
+pub fn save_comparison_image(name: &str, expected: &RgbaImage, actual: &RgbaImage) {
+    let dir = Path::new("testdata/diffs");
+    std::fs::create_dir_all(dir).ok();
+
+    let w1 = expected.width();
+    let h1 = expected.height();
+    let w2 = actual.width();
+    let h2 = actual.height();
+    
+    // Add a separator line width
+    let separator_width = 4u32;
+    
+    // Create combined image with separator
+    let combined_width = w1 + separator_width + w2;
+    let combined_height = h1.max(h2);
+    let mut combined = RgbaImage::new(combined_width, combined_height);
+    
+    // Fill with white background
+    for y in 0..combined_height {
+        for x in 0..combined_width {
+            combined.put_pixel(x, y, image::Rgba([255, 255, 255, 255]));
+        }
+    }
+    
+    // Copy expected (Labelary) image to left side
+    for y in 0..h1 {
+        for x in 0..w1 {
+            let pixel = expected.get_pixel(x, y);
+            combined.put_pixel(x, y, *pixel);
+        }
+    }
+    
+    // Draw separator line (blue)
+    for y in 0..combined_height {
+        for x in w1..(w1 + separator_width) {
+            combined.put_pixel(x, y, image::Rgba([0, 100, 200, 255]));
+        }
+    }
+    
+    // Copy actual (Labelize) image to right side
+    for y in 0..h2 {
+        for x in 0..w2 {
+            let pixel = actual.get_pixel(x, y);
+            combined.put_pixel(w1 + separator_width + x, y, *pixel);
+        }
+    }
+    
+    let path = dir.join(format!("{}.png", name));
+    combined.save(&path).ok();
+}
+

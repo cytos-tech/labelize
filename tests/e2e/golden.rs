@@ -339,6 +339,73 @@ fn golden_usps() {
     golden_zpl_with_tolerance("usps", 6.0);
 }
 
+// ── New Carrier Labels (March 2026) ────────────────────────────────
+
+#[test]
+fn golden_tnt_express() {
+    golden_zpl_with_tolerance("tnt_express", 6.0);
+}
+#[test]
+fn golden_royalmail() {
+    golden_zpl_with_tolerance("royalmail", 5.5);
+}
+#[test]
+fn golden_canadapost() {
+    golden_zpl_with_tolerance("canadapost", 6.5);
+}
+#[test]
+fn golden_auspost() {
+    golden_zpl_with_tolerance("auspost", 6.0);
+}
+#[test]
+fn golden_colissimo() {
+    golden_zpl_with_tolerance("colissimo", 5.0);
+}
+#[test]
+fn golden_postnl() {
+    golden_zpl_with_tolerance("postnl", 5.5);
+}
+#[test]
+fn golden_bpost() {
+    golden_zpl_with_tolerance("bpost", 5.5);
+}
+#[test]
+fn golden_correos() {
+    golden_zpl_with_tolerance("correos", 5.5);
+}
+#[test]
+fn golden_dbschenker() {
+    golden_zpl_with_tolerance("dbschenker", 6.0);
+}
+#[test]
+fn golden_evri() {
+    golden_zpl_with_tolerance("evri", 5.0);
+}
+#[test]
+fn golden_dpdde() {
+    golden_zpl_with_tolerance("dpdde", 5.5);
+}
+#[test]
+fn golden_ontrac() {
+    golden_zpl_with_tolerance("ontrac", 6.0);
+}
+#[test]
+fn golden_seur() {
+    golden_zpl_with_tolerance("seur", 5.5);
+}
+#[test]
+fn golden_purolator() {
+    golden_zpl_with_tolerance("purolator", 4.5);
+}
+#[test]
+fn golden_inpost() {
+    golden_zpl_with_tolerance("inpost", 7.0);
+}
+#[test]
+fn golden_yodel() {
+    golden_zpl_with_tolerance("yodel", 5.5);
+}
+
 // ── EPL golden tests ──────────────────────────────────────────────
 
 #[test]

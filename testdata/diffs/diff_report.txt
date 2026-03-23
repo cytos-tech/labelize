@@ -4,6 +4,7 @@
 ║ Name                           │ Ext  │    Diff% │   Actual(WxH) │ Expected(WxH) │ Status       ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║ amazon                         │ zpl  │    2.81% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ auspost                        │ zpl  │    5.30% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ aztec_ec                       │ zpl  │    8.07% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ barcode128_default_width       │ zpl  │    0.63% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_line                │ zpl  │    0.23% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
@@ -14,16 +15,23 @@
 ║ barcode128_mode_n_cba_sets     │ zpl  │    0.38% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_mode_u              │ zpl  │    2.20% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ barcode128_rotated             │ zpl  │    0.27% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
+║ bpost                          │ zpl  │    4.85% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ bstc                           │ zpl  │    0.00% │      813x1626 │      813x1626 │ PERFECT      ║
+║ canadapost                     │ zpl  │    5.74% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
+║ colissimo                      │ zpl  │    3.88% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ correos                        │ zpl  │    4.88% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ dbs                            │ zpl  │    5.27% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
+║ dbschenker                     │ zpl  │    5.28% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ dhlecommercetr                 │ zpl  │    5.00% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ dhlpaket                       │ zpl  │    2.68% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ dhlparceluk                    │ zpl  │    4.69% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ dpdde                          │ zpl  │    5.00% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ dpdpl                          │ zpl  │    7.12% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ dpduk                          │ epl  │    5.79% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ ean13                          │ zpl  │    2.84% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ edi_triangle                   │ zpl  │    0.63% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ encodings_013                  │ zpl  │    1.91% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ evri                           │ zpl  │    4.30% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ fedex                          │ zpl  │    7.91% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ gb_0_height                    │ zpl  │    0.00% │      813x1626 │      813x1626 │ PERFECT      ║
 ║ gb_0_width                     │ zpl  │    0.00% │      813x1626 │      813x1626 │ PERFECT      ║
@@ -37,18 +45,24 @@
 ║ glsdk_return                   │ zpl  │    6.45% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ gs                             │ zpl  │    1.01% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ icapaket                       │ zpl  │    5.39% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
+║ inpost                         │ zpl  │    6.03% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ jcpenney                       │ zpl  │    6.88% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ kmart                          │ zpl  │    8.39% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ labelary                       │ zpl  │    4.48% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ ontrac                         │ zpl  │    5.02% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ pnldpd                         │ zpl  │   13.78% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ pocztex                        │ zpl  │    4.56% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ porterbuddy                    │ zpl  │    9.04% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ posten                         │ zpl  │    3.61% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ postnl                         │ zpl  │    4.92% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ purolator                      │ zpl  │    3.78% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ qr_code_ft_manual              │ zpl  │    2.74% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ qr_code_offset                 │ zpl  │    1.67% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ return_qrcode                  │ zpl  │    6.08% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ reverse                        │ zpl  │    0.80% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ reverse_qr                     │ zpl  │    3.50% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ royalmail                      │ zpl  │    4.56% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ seur                           │ zpl  │    4.70% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ swisspost                      │ zpl  │    1.81% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ templating                     │ zpl  │    1.34% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ text_fallback_default          │ zpl  │    4.25% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
@@ -62,9 +76,11 @@
 ║ text_ft_n                      │ zpl  │    0.10% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ text_ft_r                      │ zpl  │    0.16% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ text_multiline                 │ zpl  │    0.68% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
+║ tnt_express                    │ zpl  │    5.25% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ ups                            │ zpl  │    7.65% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ ups_surepost                   │ zpl  │   10.95% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ usps                           │ zpl  │    4.97% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
+║ yodel                          │ zpl  │    4.82% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║ Summary: 62 total │ 4 perfect │ 23 good │ 21 minor │ 14 moderate │ 0 high │ 0 skip │ 0 err
+║ Summary: 78 total │ 4 perfect │ 23 good │ 30 minor │ 21 moderate │ 0 high │ 0 skip │ 0 err
 ╚══════════════════════════════════════════════════════════════════════════════╝

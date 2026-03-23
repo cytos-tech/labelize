@@ -95,6 +95,22 @@ If a future change raises the diff beyond this ceiling the golden test fails.
 | ups | zpl | 7.65 | 9.0 | MaxiCode + font metrics |
 | ups_surepost | zpl | 10.95 | 12.0 | MaxiCode + font metrics |
 | usps | zpl | 4.97 | 6.0 | Font metrics |
+| tnt_express | zpl | 5.25 | 6.0 | Font metrics + PDF417 |
+| royalmail | zpl | 4.56 | 5.5 | QR code + font metrics |
+| canadapost | zpl | 5.74 | 6.5 | QR code + PDF417 + font |
+| auspost | zpl | 5.30 | 6.0 | QR code + font metrics |
+| colissimo | zpl | 3.88 | 5.0 | DataMatrix + font metrics |
+| postnl | zpl | 4.92 | 5.5 | QR code + font metrics |
+| bpost | zpl | 4.85 | 5.5 | QR code + font metrics |
+| correos | zpl | 4.88 | 5.5 | QR code + font metrics |
+| dbschenker | zpl | 5.28 | 6.0 | PDF417 + font metrics |
+| evri | zpl | 4.30 | 5.0 | QR code + font metrics |
+| dpdde | zpl | 5.00 | 5.5 | PDF417 + font metrics |
+| ontrac | zpl | 5.02 | 6.0 | QR code + font metrics |
+| seur | zpl | 4.70 | 5.5 | PDF417 + font metrics |
+| purolator | zpl | 3.78 | 4.5 | DataMatrix + font metrics |
+| inpost | zpl | 6.03 | 7.0 | QR code + font metrics |
+| yodel | zpl | 4.82 | 5.5 | QR code + font metrics |
 
 ## Known Limitations
 
