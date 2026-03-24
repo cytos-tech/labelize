@@ -28,10 +28,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Unit & integration tests
-        run: cargo test --test unit -- --test-threads=4
+        run: cargo test --test 'unit_*' -- --test-threads=4
         timeout-minutes: 8
       - name: Golden diff regression
-        run: cargo test --test e2e -- golden --test-threads=4
+        run: cargo test --test 'e2e_*' -- --test-threads=4
         timeout-minutes: 8
 
   fmt:
