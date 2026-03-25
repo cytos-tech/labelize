@@ -76,7 +76,7 @@ pub fn encode(
     )));
 
     // Encode via rxing
-    let writer = MultiFormatWriter::default();
+    let writer = MultiFormatWriter;
     let bit_matrix = writer
         .encode_with_hints(content, &BarcodeFormat::PDF_417, 0, 0, &hints)
         .map_err(|e| format!("PDF417 encoding failed: {}", e))?;
