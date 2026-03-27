@@ -11,52 +11,9 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  # ── CLI E2E (install via Homebrew, test convert commands) ──────────
-  cli:
-    name: CLI E2E (Homebrew)
+  e2e:
+    name: E2E Integration
     runs-on: macos-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install labelize via Homebrew
-        run: |
-          brew tap GOODBOY008/homebrew-labelize
-          brew install labelize
-
-      - name: Verify installation
-        run: labelize --version
-
-      - name: Run CLI E2E tests
-        run: |
-          chmod +x e2e/cli/test_cli.sh
-          bash e2e/cli/test_cli.sh
-
-  # ── HTTP E2E (install via Homebrew, test microservice) ────────────
-  http:
-    name: HTTP E2E (Homebrew)
-    runs-on: macos-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Install labelize via Homebrew
-        run: |
-          brew tap GOODBOY008/homebrew-labelize
-          brew install labelize
-
-      - name: Verify installation
-        run: labelize --version
-
-      - name: Run HTTP E2E tests
-        run: |
-          chmod +x e2e/http/test_http.sh
-          bash e2e/http/test_http.sh
-
-  # ── SDK E2E (fetch from crates.io, run Rust integration tests) ───
-  sdk:
-    name: SDK E2E (crates.io)
-    runs-on: ubuntu-latest
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v5
@@ -67,6 +24,28 @@ jobs:
         with:
           workspaces: e2e/sdk
 
+      # ── Install labelize via Homebrew ─────────────────────────────
+      - name: Install labelize via Homebrew
+        run: |
+          brew tap GOODBOY008/homebrew-labelize
+          brew install labelize
+
+      - name: Verify installation
+        run: labelize --version
+
+      # ── CLI E2E ───────────────────────────────────────────────────
+      - name: Run CLI E2E tests
+        run: |
+          chmod +x e2e/cli/test_cli.sh
+          bash e2e/cli/test_cli.sh
+
+      # ── HTTP E2E ──────────────────────────────────────────────────
+      - name: Run HTTP E2E tests
+        run: |
+          chmod +x e2e/http/test_http.sh
+          bash e2e/http/test_http.sh
+
+      # ── SDK E2E ───────────────────────────────────────────────────
       - name: Build SDK E2E project
         working-directory: e2e/sdk
         run: cargo build
@@ -74,3 +53,15 @@ jobs:
       - name: Run SDK integration tests
         working-directory: e2e/sdk
         run: cargo test -- --nocapture
+
+      # ── Upload convert outputs ────────────────────────────────────
+      - name: Upload convert results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-convert-outputs
+          retention-days: 1
+          path: |
+            e2e/cli-outputs/
+            e2e/http-outputs/
+            e2e/sdk/output/

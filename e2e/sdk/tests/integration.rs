@@ -1,4 +1,6 @@
 use std::io::Cursor;
+use std::fs;
+use std::path::Path;
 use labelize::{DrawerOptions, Renderer, ZplParser};
 
 const SAMPLE_ZPL: &[u8] = b"^XA\
@@ -10,6 +12,8 @@ const SAMPLE_ZPL: &[u8] = b"^XA\
 ^FO50,310^A0N,30,30^FDTest Label^FS\
 ^XZ";
 
+const OUTPUT_DIR: &str = "output";
+
 fn default_options() -> DrawerOptions {
     DrawerOptions {
         label_width_mm: 102.0,
@@ -17,6 +21,12 @@ fn default_options() -> DrawerOptions {
         dpmm: 8,
         ..Default::default()
     }
+}
+
+fn save_output(name: &str, data: &[u8]) {
+    let dir = Path::new(OUTPUT_DIR);
+    fs::create_dir_all(dir).ok();
+    fs::write(dir.join(name), data).expect("failed to save output");
 }
 
 #[test]
@@ -43,6 +53,8 @@ fn render_png_produces_valid_output() {
 
     // Verify PNG signature (magic bytes)
     assert_eq!(&bytes[0..4], &[0x89, 0x50, 0x4E, 0x47], "Invalid PNG header");
+
+    save_output("sample.png", &bytes);
 }
 
 #[test]
@@ -70,6 +82,8 @@ fn render_pdf_produces_valid_output() {
 
     // Verify PDF signature
     assert_eq!(&bytes[0..5], b"%PDF-", "Invalid PDF header");
+
+    save_output("sample.pdf", &bytes);
 }
 
 #[test]
@@ -93,6 +107,8 @@ fn custom_dimensions_render() {
 
     let bytes = buf.into_inner();
     assert!(bytes.len() > 100, "PNG output too small: {} bytes", bytes.len());
+
+    save_output("sample-custom.png", &bytes);
 }
 
 #[test]
@@ -109,6 +125,8 @@ fn multiple_labels_in_one_input() {
         renderer
             .draw_label_as_png(label, &mut buf, options.clone())
             .expect(&format!("Render label {} failed", i));
-        assert!(buf.into_inner().len() > 100);
+        let bytes = buf.into_inner();
+        assert!(bytes.len() > 100);
+        save_output(&format!("multi-label-{}.png", i), &bytes);
     }
 }

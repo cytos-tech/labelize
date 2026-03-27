@@ -6,8 +6,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TESTDATA_DIR="$SCRIPT_DIR/../testdata"
+OUTPUT_DIR="$SCRIPT_DIR/../cli-outputs"
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "$WORK_DIR"' EXIT
+
+mkdir -p "$OUTPUT_DIR"
 
 ZPL_FILE="$TESTDATA_DIR/sample.zpl"
 
@@ -65,28 +68,33 @@ cp "$ZPL_FILE" "$WORK_DIR/label.zpl"
 assert_ok "convert exits 0" labelize convert "$WORK_DIR/label.zpl"
 assert_file_min_size "output PNG has content" "$WORK_DIR/label.png" 500
 assert_file_header "output is valid PNG" "$WORK_DIR/label.png" "89504e47"
+cp "$WORK_DIR/label.png" "$OUTPUT_DIR/sample.png" 2>/dev/null || true
 
 # 3. Convert ZPL → PNG with explicit output path
 echo "[3] Convert ZPL → PNG (explicit output)"
 assert_ok "convert with -o exits 0" labelize convert "$ZPL_FILE" -o "$WORK_DIR/explicit.png"
 assert_file_min_size "explicit output PNG has content" "$WORK_DIR/explicit.png" 500
+cp "$WORK_DIR/explicit.png" "$OUTPUT_DIR/explicit.png" 2>/dev/null || true
 
 # 4. Convert ZPL → PDF
 echo "[4] Convert ZPL → PDF"
 assert_ok "convert to PDF exits 0" labelize convert "$ZPL_FILE" -t pdf -o "$WORK_DIR/label.pdf"
 assert_file_min_size "output PDF has content" "$WORK_DIR/label.pdf" 500
 assert_file_header "output is valid PDF" "$WORK_DIR/label.pdf" "25504446"
+cp "$WORK_DIR/label.pdf" "$OUTPUT_DIR/sample.pdf" 2>/dev/null || true
 
 # 5. Convert with custom dimensions
 echo "[5] Convert with custom dimensions"
 assert_ok "convert with dimensions exits 0" labelize convert "$ZPL_FILE" -o "$WORK_DIR/custom.png" --width 100 --height 62 --dpmm 12
 assert_file_min_size "custom dimension PNG has content" "$WORK_DIR/custom.png" 200
+cp "$WORK_DIR/custom.png" "$OUTPUT_DIR/sample-custom.png" 2>/dev/null || true
 
 # 6. Format override
 echo "[6] Format override"
 cp "$ZPL_FILE" "$WORK_DIR/label.txt"
 assert_ok "convert with -f zpl exits 0" labelize convert "$WORK_DIR/label.txt" -f zpl -o "$WORK_DIR/override.png"
 assert_file_min_size "format-override PNG has content" "$WORK_DIR/override.png" 500
+cp "$WORK_DIR/override.png" "$OUTPUT_DIR/override.png" 2>/dev/null || true
 
 echo ""
 echo "=== Results: $pass passed, $fail failed ==="

@@ -6,6 +6,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TESTDATA_DIR="$SCRIPT_DIR/../testdata"
+OUTPUT_DIR="$SCRIPT_DIR/../http-outputs"
 WORK_DIR="$(mktemp -d)"
 trap 'cleanup' EXIT
 
@@ -19,6 +20,8 @@ cleanup() {
   fi
   rm -rf "$WORK_DIR"
 }
+
+mkdir -p "$OUTPUT_DIR"
 
 ZPL_DATA=$(cat "$TESTDATA_DIR/sample.zpl")
 
@@ -97,6 +100,7 @@ HTTP_CODE=$(curl -sf -o "$WORK_DIR/http_label.png" -w '%{http_code}' \
   -d "$ZPL_DATA")
 assert_eq "HTTP status 200" "200" "$HTTP_CODE"
 assert_file_min_size "response PNG has content" "$WORK_DIR/http_label.png" 500
+cp "$WORK_DIR/http_label.png" "$OUTPUT_DIR/sample.png" 2>/dev/null || true
 
 PNG_CT=$(curl -sf -o /dev/null -w '%{content_type}' \
   -X POST "http://127.0.0.1:$PORT/convert" \
@@ -112,6 +116,7 @@ HTTP_CODE=$(curl -sf -o "$WORK_DIR/http_label.pdf" -w '%{http_code}' \
   -d "$ZPL_DATA")
 assert_eq "HTTP status 200" "200" "$HTTP_CODE"
 assert_file_min_size "response PDF has content" "$WORK_DIR/http_label.pdf" 500
+cp "$WORK_DIR/http_label.pdf" "$OUTPUT_DIR/sample.pdf" 2>/dev/null || true
 
 PDF_CT=$(curl -sf -o /dev/null -w '%{content_type}' \
   -X POST "http://127.0.0.1:$PORT/convert?output=pdf" \
@@ -127,6 +132,7 @@ HTTP_CODE=$(curl -sf -o "$WORK_DIR/custom.png" -w '%{http_code}' \
   -d "$ZPL_DATA")
 assert_eq "HTTP status 200 with custom dims" "200" "$HTTP_CODE"
 assert_file_min_size "custom-dim PNG has content" "$WORK_DIR/custom.png" 200
+cp "$WORK_DIR/custom.png" "$OUTPUT_DIR/sample-custom.png" 2>/dev/null || true
 
 # 5. Bad request (empty body)
 echo "[5] POST /convert with empty body"
