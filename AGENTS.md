@@ -83,6 +83,17 @@ cargo run -- convert testdata/amazon.zpl
 - Test files follow naming convention: `tests/e2e_*.rs` for e2e tests, `tests/unit_*.rs` for unit tests
 - Shared test utilities are in `tests/common/` (not compiled as tests)
 
+### Rendering Change Workflow
+
+When you modify any rendering-related logic (parsers, elements, drawers, barcodes, fonts, encoders), you **must**:
+
+1. Run `cargo test --test e2e_diff_report -- --nocapture` to regenerate all diff images and `testdata/diffs/diff_report.txt`
+2. Run `cargo test --test e2e_golden` to verify diff percentages stay within per-label tolerance thresholds
+2. Review the updated `testdata/diffs/diff_report.txt` to confirm diff percentages stay within tolerance
+3. **Commit the changed files in `testdata/diffs/`** (including updated `*.png` and `diff_report.txt`) as part of the same PR
+
+This ensures PR reviewers can visually inspect the before/after rendering impact directly in the diff — left side is Labelary reference, right side is the current Labelize output.
+
 ## Rendering Reference
 
 - Default canvas: 813×1626 px (101.625mm × 203.25mm at 8 dpmm)

@@ -10,6 +10,8 @@ Labelize is a fast, open-source Rust engine that parses **ZPL** (Zebra Programmi
 
 If you need a self-hosted, offline alternative to [Labelary](http://labelary.com/) for previewing and converting thermal label formats, Labelize has you covered.
 
+Existing solutions either depend on external services (Labelary API — data privacy concerns), require paid licenses (often hundreds of dollars), or produce poor rendering quality. Labelize gives you a fast, free, open-source option that runs entirely on your own infrastructure.
+
 ## Why Labelize?
 
 | | Labelize | Labelary (web) | Zebra Printer |
@@ -21,6 +23,17 @@ If you need a self-hosted, offline alternative to [Labelary](http://labelary.com
 | **PDF output** | ✅ | ❌ | ❌ |
 | **Embeddable library** | ✅ | ❌ | ❌ |
 | **REST API** | ✅ | ✅ | ❌ |
+| **Cost** | Free | Free / paid | Hardware cost |
+
+## Performance
+
+Benchmarked against the Labelary API on the same set of labels:
+
+| Metric | Labelize | Labelary API |
+|--------|----------|--------------|
+| Avg render time | ~5 ms | ~388 ms |
+| Offline | ✅ | ❌ |
+| Data privacy | Full control | Third-party |
 
 ## Features
 
