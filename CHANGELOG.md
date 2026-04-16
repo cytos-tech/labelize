@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-04-16
+
+### Added
+
+- **E2E Test Artifacts** — CI workflow now captures and uploads convert outputs (PNG/PDF) from CLI, HTTP, and SDK tests as GitHub Artifacts with 1-day retention
+- **Consolidated E2E Workflow** — Merged CLI, HTTP, and SDK E2E jobs into single macOS job for efficiency
+- **Rendering Change Workflow** — Added documentation requiring `e2e_diff_report` test runs and `testdata/diffs/` commits for rendering-related PRs
+- **Performance Benchmarks** — Added performance comparison section (~5ms vs Labelary ~388ms) to README
+- **Render Comparison Gallery** — Added side-by-side comparison images for 6 major carriers (Amazon, FedEx, UPS, DHL, USPS, Swiss Post) in README
+- **MIT License File** — Added LICENSE file with full MIT license text
+
+### Fixed
+
+- **Bash 3 Compatibility** — Fixed case-insensitive comparison in CLI E2E test for macOS default Bash 3
+- **License Link** — Fixed broken `../LICENSE` reference in README to point to `LICENSE`
+- **Test Command Documentation** — Corrected AGENTS.md to use `cargo test --test e2e_diff_report` for diff regeneration
+
+### Changed
+
+- **Output Directory Naming** — Standardized E2E test output directories to `cli-output`, `http-output`, `sdk-output`
+- **README Structure** — Added motivation paragraph, cost comparison row, and reorganized sections
+- **Documentation** — Enhanced AGENTS.md with clear rendering change workflow and test commands
+
 ## [0.1.0] - 2026-03-24
 
 ### Added
