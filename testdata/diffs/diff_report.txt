@@ -26,7 +26,7 @@
 ║ dbschenker                     │ zpl  │    4.36% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ dhlecommercetr                 │ zpl  │    3.48% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ dhlpaket                       │ zpl  │    2.18% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
-║ dhlparcelit                    │ zpl  │   10.43% │      813x1626 │      812x1624 │ MODERATE(<15%) ║
+║ dhlparcelit                    │ zpl  │    9.46% │      813x1626 │      812x1624 │ MODERATE(<15%) ║
 ║ dhlparceluk                    │ zpl  │    4.91% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ dpdde                          │ zpl  │    3.50% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ dpdpl                          │ zpl  │    6.72% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
@@ -77,7 +77,7 @@
 ║ text_fo_r                      │ zpl  │    0.04% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ text_ft_auto_pos               │ zpl  │    1.20% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ text_ft_b                      │ zpl  │    0.03% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
-║ text_ft_i                      │ zpl  │    0.05% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
+║ text_ft_i                      │ zpl  │    0.03% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ text_ft_n                      │ zpl  │    0.03% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ text_ft_r                      │ zpl  │    0.04% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ text_multiline                 │ zpl  │    0.57% │      813x1626 │      813x1626 │ GOOD(<1%)    ║

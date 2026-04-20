@@ -807,11 +807,15 @@ fn get_text_top_left_pos(
     //   We need to shift x left by ascent (original y-direction becomes x-direction).
     // - Rotated180: baseline is at the top, (x,y) is right end of baseline.
     //   We need to shift x left by text width.
+    //   After rotate_180() the text buffer baseline (originally at y≈actual_ascent from top)
+    //   ends up at y=(buf_h - 1 - actual_ascent) from the top of the rotated buffer.
+    //   buf_h = h.ceil() + 2, so correction = h.ceil() + 1 - ascent.
+    //   Subtracting this from y aligns the baseline with the ^FT y coordinate.
     // - Rotated270 (CW 270°): text reads top-to-bottom, baseline is now on the left side.
     //   We need to shift both x left by ascent and y up by text width.
     match text.font.orientation {
         FieldOrientation::Rotated90 => (x - rotated90_offset, y),
-        FieldOrientation::Rotated180 => (x - w, y),
+        FieldOrientation::Rotated180 => (x - w, y - (h.ceil() + 1.0 - ascent)),
         FieldOrientation::Rotated270 => (x - rotated270_offset, y - w),
         _ => (x, y - total_h),
     }

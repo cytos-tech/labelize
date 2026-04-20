@@ -145,7 +145,7 @@ differences (< 2 %) are primarily from anti-aliasing at logo edges and slight
 coordinate rounding.
 
 ### Stored Graphics (dhlparcelit, brtit)
-`~DG` downloads and `^XG` recalls render correctly. The remaining ~10 % diff on
+`~DG` downloads and `^XG` recalls render correctly. The remaining ~9.5 % diff on
 `dhlparcelit` is due to font metrics (^A0I text) and label size mismatch
 (813×1626 vs 812×1624 reference). The `^XG.GRF` (unnamed recall) does not match
 the stored `CMR.GRF` key — both our implementation and Labelary skip it.
