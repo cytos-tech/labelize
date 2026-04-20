@@ -353,44 +353,46 @@ fn diagonal_line_thick_border_draws_triangle() {
 fn qr_code_has_quiet_zone() {
     // QR code per ZPL spec includes a 4-module quiet zone around the code.
     // With magnification=10, the quiet zone is 40 pixels wide.
+    // ^FO0,0 with default ^BY height=10: QR modules start at (x=0, y=10).
+    // The quiet zone extends to the left/top of the field origin (partially off-canvas).
     let zpl = "^XA^FO0,0^BQN,2,10^FDQA,Test Data^FS^XZ";
     let png = render_helpers::render_zpl_to_png(zpl, default_options());
     let img = decode_png(&png);
 
-    // The first 40 pixels (4 modules * mag 10) should be white (quiet zone).
-    let mut all_white_near_origin = true;
-    for y in 0..39u32 {
-        for x in 0..39u32 {
+    // Before the QR modules (y=0..9 = before FO_y + by_height), canvas is white.
+    let mut all_white_before_modules = true;
+    for y in 0..10u32 {
+        for x in 0..10u32 {
             if x < img.width() && y < img.height() && img.get_pixel(x, y)[0] < 128 {
-                all_white_near_origin = false;
+                all_white_before_modules = false;
                 break;
             }
         }
-        if !all_white_near_origin {
+        if !all_white_before_modules {
             break;
         }
     }
     assert!(
-        all_white_near_origin,
-        "QR should have white quiet zone near (0,0)"
+        all_white_before_modules,
+        "rows before QR module start should be white"
     );
 
-    // Dark pixels should appear starting around pixel 40 (quiet_zone * magnification).
-    let mut has_dark_after_quiet = false;
-    for y in 40..60u32 {
-        for x in 40..60u32 {
+    // Dark pixels (QR modules) should appear starting at y=10 (FO_y + by_height).
+    let mut has_dark_at_modules = false;
+    for y in 10..20u32 {
+        for x in 0..20u32 {
             if x < img.width() && y < img.height() && img.get_pixel(x, y)[0] < 128 {
-                has_dark_after_quiet = true;
+                has_dark_at_modules = true;
                 break;
             }
         }
-        if has_dark_after_quiet {
+        if has_dark_at_modules {
             break;
         }
     }
     assert!(
-        has_dark_after_quiet,
-        "QR should have dark modules after quiet zone"
+        has_dark_at_modules,
+        "QR should have dark modules starting at y=FO_y+by_height=10"
     );
 }
 

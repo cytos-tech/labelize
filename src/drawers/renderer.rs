@@ -620,9 +620,26 @@ impl Renderer {
         let (input_data, ec, _) = bc.get_input_data()?;
         let img = barcodes::qrcode::encode(&input_data, bc.barcode.magnification, ec)?;
 
-        let pos = adjust_image_typeset_position(&img, &bc.position, FieldOrientation::Normal);
+        let quiet_zone_px = 4 * bc.barcode.magnification;
 
-        overlay_at(canvas, &img, pos.x, pos.y);
+        let (draw_x, draw_y) = if bc.position.calculate_from_bottom {
+            // ^FT baseline positioning: shift y by +1 module so the image bottom
+            // extends 1 module (mag px) past the ^FT y, matching Labelary behavior.
+            let adjusted = LabelPosition {
+                y: bc.position.y + bc.barcode.magnification,
+                ..bc.position.clone()
+            };
+            let pos = adjust_image_typeset_position(&img, &adjusted, FieldOrientation::Normal);
+            (pos.x - quiet_zone_px, pos.y)
+        } else {
+            // ^FO origin positioning: modules start at (FO_x, FO_y + by_height).
+            // The image (with quiet zone on all sides) is drawn offset so that the
+            // quiet zone falls outside the field origin.
+            let pos = adjust_image_typeset_position(&img, &bc.position, FieldOrientation::Normal);
+            (pos.x - quiet_zone_px, pos.y + bc.height - quiet_zone_px)
+        };
+
+        overlay_at(canvas, &img, draw_x, draw_y);
         Ok(())
     }
 
