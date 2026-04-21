@@ -14,6 +14,24 @@ Systematically diagnose rendering mismatches in labelize by:
 3. Comparing spec behavior with labelize implementation
 4. Applying the fix
 
+## Critical Rule — Fix Rendering Code, Never Tests
+
+**DO NOT** modify diff tests, golden test infrastructure, reference images, tolerance thresholds
+(to hide regressions), or test comparison logic to make diffs pass. The goal is to improve
+rendering accuracy, not to weaken the test harness.
+
+**DO** fix the root cause in rendering code and logic:
+
+- Parsers: `src/parsers/`
+- Elements: `src/elements/`
+- Barcode encoders: `src/barcodes/`
+- Renderer / drawing: `src/drawers/`
+- Font handling: `src/assets/`
+
+Threshold updates in `docs/DIFF_THRESHOLDS.md` are only allowed **after** a rendering fix
+genuinely lowers the diff percentage — set the new tolerance slightly above the new measured
+diff, never raise it to paper over a regression.
+
 ## When to Use
 
 - A golden test exceeds its diff threshold

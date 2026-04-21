@@ -10,6 +10,24 @@ argument-hint: "Label name to fix (e.g. 'fedex', 'ups') or 'all' for batch mode"
 
 Automatically detect labels with high rendering diff percentages, isolate the problematic ZPL elements into standalone test files for focused debugging, and iteratively fix the rendering logic until the diff drops below a target threshold (default 1%).
 
+## Critical Rule — Fix Rendering Code, Never Tests
+
+**DO NOT** modify diff tests, golden test infrastructure, reference images, tolerance thresholds
+(to hide regressions), or test comparison logic to make diffs pass. The goal is to improve
+rendering accuracy, not to weaken the test harness.
+
+**DO** fix the root cause in rendering code and logic:
+
+- Parsers: `src/parsers/`
+- Elements: `src/elements/`
+- Barcode encoders: `src/barcodes/`
+- Renderer / drawing: `src/drawers/`
+- Font handling: `src/assets/`
+
+Threshold updates in `docs/DIFF_THRESHOLDS.md` are only allowed **after** a rendering fix
+genuinely lowers the diff percentage — set the new tolerance slightly above the new measured
+diff, never raise it to paper over a regression.
+
 ## When to Use
 
 - A label has a diff percentage higher than desired
@@ -93,14 +111,19 @@ Before starting, ensure:
 
 11. **Render each snippet** to verify it renders correctly in isolation:
     ```bash
-    cargo run -- convert testdata/snippets/<label>_<index>.zpl
+    cargo run -- convert --width 101.625 --height 203.25 --dpmm 8 testdata/snippets/<label>_<index>.zpl
     ```
+    The `--width`, `--height`, and `--dpmm` flags must match the Labelary label size
+    (`4.005×8.01 inches` = `101.625×203.25 mm` at 8 dpmm → 813×1626 px) so that the
+    generated PNG has the same dimensions as the Labelary reference.
 
 12. **Get Labelary reference** for each snippet — post the snippet ZPL to:
     ```
     POST http://api.labelary.com/v1/printers/8dpmm/labels/4.005x8.01/0/
     ```
-    Save the reference as `testdata/snippets/<label>_<index>_ref.png`
+    Save the reference as `testdata/snippets/<label>_<index>_ref.png`.
+    Both PNGs (local render and Labelary reference) must be 813×1626 px; if sizes
+    differ, `compute_image_diff_percent` reports 100% diff.
 
 13. **Compare snippet renders** — this isolates the rendering difference to a single element
 
