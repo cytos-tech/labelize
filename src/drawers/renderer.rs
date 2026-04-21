@@ -449,7 +449,16 @@ impl Renderer {
                         barcodes::code128::prepare_ucc_mode_data(content)
                     }
                     BarcodeMode::Ean => {
-                        format!("{}{}", barcodes::code128::ESCAPE_FNC_1, content)
+                        // Mode D: FNC1 prepended automatically; >8 in data = embedded FNC1 separator
+                        // for chaining GS1 application identifiers; parentheses and spaces stripped
+                        // from encoding but preserved in display text per ZPL spec.
+                        let fnc1 = barcodes::code128::ESCAPE_FNC_1.to_string();
+                        let for_encoding: String = content
+                            .replace(">8", &fnc1)
+                            .chars()
+                            .filter(|c| *c != '(' && *c != ')' && *c != ' ')
+                            .collect();
+                        format!("{}{}", barcodes::code128::ESCAPE_FNC_1, for_encoding)
                     }
                     _ => content.clone(),
                 };

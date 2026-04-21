@@ -93,7 +93,7 @@ If a future change raises the diff beyond this ceiling the golden test fails.
 | text_ft_r | zpl | 0.16 | 1.0 | Sub-pixel |
 | text_multiline | zpl | 0.68 | 2.0 | Word-wrap boundaries |
 | ups | zpl | 7.65 | 9.0 | MaxiCode + font metrics |
-| ups_surepost | zpl | 10.95 | 12.0 | MaxiCode + font metrics |
+| ups_surepost | zpl | 8.80 | 10.0 | MaxiCode + font metrics |
 | usps | zpl | 4.09 | 5.0 | Font metrics |
 | tnt_express | zpl | 5.25 | 6.0 | Font metrics + PDF417 |
 | royalmail | zpl | 3.33 | 4.0 | QR code + font metrics |
