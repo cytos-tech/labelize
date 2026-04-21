@@ -17,6 +17,7 @@ pub struct VirtualPrinter {
     pub label_home_position: LabelPosition,
     pub next_element_position: LabelPosition,
     pub default_font: FontInfo,
+    pub last_field_font: FontInfo,
     pub default_orientation: FieldOrientation,
     pub default_alignment: FieldAlignment,
     pub next_element_alignment: Option<FieldAlignment>,
@@ -45,6 +46,7 @@ impl Default for VirtualPrinter {
                 name: "A".to_string(),
                 ..FontInfo::default()
             },
+            last_field_font: FontInfo::default(),
             default_orientation: FieldOrientation::Normal,
             default_alignment: FieldAlignment::Left,
             next_element_alignment: None,
@@ -114,6 +116,8 @@ impl VirtualPrinter {
         self.next_element_field_data = String::new();
         self.next_element_field_number = -1;
         self.next_element_alignment = None;
+        // Save font used by the last field so ^GS can inherit it when no size specified
+        self.last_field_font = self.next_font.clone().unwrap_or_else(|| self.default_font.clone());
         self.next_font = None;
         self.next_element_field_reverse = false;
         self.next_hex_escape_char = 0;

@@ -350,43 +350,31 @@ impl Renderer {
                 drawing::draw_line_segment_mut(canvas, (x, y + h), (x + w, y), color);
             }
         } else {
-            // Draw thick diagonal as a one-sided band from the diagonal line,
-            // extending toward the interior of the bounding box, clipped to bounds.
-            let (x0, y0, x1, y1) = if dl.top_to_bottom {
-                (x, y, x + w, y + h)
+            // Thick diagonal: fill a horizontal band of width `t` starting from the diagonal,
+            // extending to the right (positive x direction), unclipped vertically but bounded
+            // by the vertical span [y, y+h].
+            //
+            // The fill parallelogram for R (/): diagonal goes from (x+w,y) to (x,y+h).
+            //   At each row, fill starts at diag_x and extends t pixels right.
+            //   Parallelogram: (x+w, y), (x+w+t, y), (x+t, y+h), (x, y+h)
+            //
+            // The fill parallelogram for L (\): diagonal goes from (x,y) to (x+w,y+h).
+            //   At each row, fill starts at diag_x and extends t pixels right.
+            //   Parallelogram: (x, y), (x+t, y), (x+w+t, y+h), (x+w, y+h)
+            let t = (thickness - 1) as f32;  // inclusive fill: t pixels wide
+            let para = if dl.top_to_bottom {
+                // L (\)
+                [(x, y), (x + t, y), (x + w + t, y + h), (x + w, y + h)]
             } else {
-                (x, y + h, x + w, y)
-            };
-            let dx = x1 - x0;
-            let dy = y1 - y0;
-            let len = (dx * dx + dy * dy).sqrt();
-            if len < 0.001 {
-                return;
-            }
-            let t = thickness as f32;
-            // Normal direction pointing toward the interior of the bounding box.
-            // For L (\, top_to_bottom): line goes top-left to bottom-right,
-            //   interior is below-left, normal = (dy, -dx)/len = (h, -w)/len
-            // For R (/, !top_to_bottom): line goes bottom-left to top-right,
-            //   interior is below-right, normal = (-dy, dx)/len = (h, w)/len
-            let (nx, ny) = if dl.top_to_bottom {
-                // L: offset toward bottom-left → (dy/len, -dx/len)
-                (dy / len * t, -dx / len * t)
-            } else {
-                // R: offset toward bottom-right → (-dy/len, dx/len)
-                (-dy / len * t, dx / len * t)
+                // R (/)
+                [(x + w, y), (x + w + t, y), (x + t, y + h), (x, y + h)]
             };
 
-            let para = [(x0, y0), (x0 + nx, y0 + ny), (x1 + nx, y1 + ny), (x1, y1)];
-
-            let clipped = clip_polygon_to_rect(&para, x, y, x + w, y + h);
-            if clipped.len() >= 3 {
-                let points: Vec<imageproc::point::Point<i32>> = clipped
-                    .iter()
-                    .map(|(px, py)| imageproc::point::Point::new(*px as i32, *py as i32))
-                    .collect();
-                drawing::draw_polygon_mut(canvas, &points, color);
-            }
+            let points: Vec<imageproc::point::Point<i32>> = para
+                .iter()
+                .map(|(px, py)| imageproc::point::Point::new(*px as i32, *py as i32))
+                .collect();
+            drawing::draw_polygon_mut(canvas, &points, color);
         }
     }
 
@@ -456,7 +444,11 @@ impl Renderer {
             _ => {
                 // Modes U and D (UCC/EAN) automatically insert FNC1 at start per ZPL spec
                 let content_to_encode = match bc.barcode.mode {
-                    BarcodeMode::Ucc | BarcodeMode::Ean => {
+                    BarcodeMode::Ucc => {
+                        // Mode U: truncate to 19 digits, append GS1 Mod-10 check digit, prepend FNC1
+                        barcodes::code128::prepare_ucc_mode_data(content)
+                    }
+                    BarcodeMode::Ean => {
                         format!("{}{}", barcodes::code128::ESCAPE_FNC_1, content)
                     }
                     _ => content.clone(),
@@ -635,14 +627,15 @@ impl Renderer {
         let quiet_zone_px = 4 * bc.barcode.magnification;
 
         let (draw_x, draw_y) = if bc.position.calculate_from_bottom {
-            // ^FT baseline positioning: shift y by +1 module so the image bottom
-            // extends 1 module (mag px) past the ^FT y, matching Labelary behavior.
+            // ^FT baseline positioning: the QR image (including quiet zones) is positioned
+            // so that the modules start at y = ^FT_y - img_height + magnification.
+            // We shift y by +1 module then subtract quiet_zone_px so modules align correctly.
             let adjusted = LabelPosition {
                 y: bc.position.y + bc.barcode.magnification,
                 ..bc.position.clone()
             };
             let pos = adjust_image_typeset_position(&img, &adjusted, FieldOrientation::Normal);
-            (pos.x - quiet_zone_px, pos.y)
+            (pos.x - quiet_zone_px, pos.y - quiet_zone_px)
         } else {
             // ^FO origin positioning: modules start at (FO_x, FO_y + by_height).
             // The image (with quiet zone on all sides) is drawn offset so that the

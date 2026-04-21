@@ -957,9 +957,16 @@ impl ZplParser {
 
     fn parse_graphic_symbol(&mut self, command: &str) {
         let parts = split_command(command, "^GS");
+        // When ^GS has no explicit size, inherit from last rendered field's font
+        // (Labelary behavior: GS follows the most recent ^A font dimensions)
+        let fallback = if self.printer.last_field_font.height > 0.0 {
+            self.printer.last_field_font.clone()
+        } else {
+            self.printer.default_font.clone()
+        };
         let mut gs = GraphicSymbol {
-            width: self.printer.default_font.width,
-            height: self.printer.default_font.height,
+            width: fallback.width,
+            height: fallback.height,
             orientation: self.printer.default_orientation,
         };
         if let Some(s) = parts.first() {

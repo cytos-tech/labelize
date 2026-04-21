@@ -46,8 +46,10 @@ impl BarcodeQrWithData {
         let level = match bytes[0] {
             b'H' => QrErrorCorrectionLevel::H,
             b'Q' => QrErrorCorrectionLevel::Q,
+            b'M' => QrErrorCorrectionLevel::M,
             b'L' => QrErrorCorrectionLevel::L,
-            _ => QrErrorCorrectionLevel::M,
+            // Unrecognized format indicator: Labelary defaults to H error correction
+            _ => QrErrorCorrectionLevel::H,
         };
 
         if bytes[1] == b'M' && !data.is_empty() {
