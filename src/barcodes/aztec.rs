@@ -34,8 +34,16 @@ pub fn encode(content: &str, magnification: i32, ec_symbol_size: i32) -> Result<
             hints = hints.with(EncodeHintValue::AztecLayers(layers));
         }
         // EC percentage: 1-99
+        // ZPL ^BO d parameter defines EC% as a percentage of TOTAL codewords,
+        // i.e. ecc_codewords / total_codewords = ec_percent / 100.
+        // rxing's ErrorCorrection hint instead uses EC% of DATA bits:
+        //   ecc_bits = data_bits * ec_percent / 100 + 11
+        // Conversion: adjusted = ceil(ec_percent * 100 / (100 - ec_percent))
+        // This ensures rxing picks the same minimum symbol layer as Zebra firmware.
         1..=99 => {
-            hints = hints.with(EncodeHintValue::ErrorCorrection(ec_symbol_size.to_string()));
+            let adjusted_ec =
+                (ec_symbol_size * 100 + (100 - ec_symbol_size) - 1) / (100 - ec_symbol_size);
+            hints = hints.with(EncodeHintValue::ErrorCorrection(adjusted_ec.to_string()));
         }
         // 0, 300, or other: use rxing defaults
         _ => {}

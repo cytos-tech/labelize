@@ -34,7 +34,7 @@ If a future change raises the diff beyond this ceiling the golden test fails.
 | Label | Ext | Diff % | Tolerance | Primary diff source |
 |-------|-----|--------|-----------|---------------------|
 | amazon | zpl | 2.81 | 4.0 | Font metrics |
-| aztec_ec | zpl | 8.07 | 9.0 | Aztec barcode encoding |
+| aztec_ec | zpl | 6.82 | 7.5 | Aztec barcode encoding (correct symbol size, different internal patterns from rxing) |
 | barcode128_default_width | zpl | 0.63 | 2.0 | Sub-pixel barcode bars |
 | barcode128_line | zpl | 0.23 | 2.0 | Sub-pixel |
 | barcode128_line_above | zpl | 0.26 | 2.0 | Sub-pixel |

@@ -6,7 +6,7 @@
 ║ amazon                         │ zpl  │    2.26% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ amazonshipping                 │ zpl  │    3.11% │      813x1626 │      812x1624 │ MINOR(<5%)   ║
 ║ auspost                        │ zpl  │    3.93% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
-║ aztec_ec                       │ zpl  │    8.07% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
+║ aztec_ec                       │ zpl  │    6.82% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ barcode128_default_width       │ zpl  │    0.62% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_line                │ zpl  │    0.23% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_line_above          │ zpl  │    0.26% │      813x1626 │      813x1626 │ GOOD(<1%)    ║

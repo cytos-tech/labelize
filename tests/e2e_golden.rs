@@ -105,7 +105,7 @@ fn golden_amazon() {
 }
 #[test]
 fn golden_aztec_ec() {
-    golden_zpl_with_tolerance("aztec_ec", 9.0);
+    golden_zpl_with_tolerance("aztec_ec", 7.5);
 }
 #[test]
 fn golden_barcode128_default_width() {
