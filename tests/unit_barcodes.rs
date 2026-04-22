@@ -26,8 +26,9 @@ fn code128_empty_input_handled() {
 
 #[test]
 fn code128_no_mode_strips_prefix_from_display() {
-    // Mode N with >; (Code B start) + >6 (Code B switch) + >7 (Code C switch)
-    // Display text should NOT contain any > prefix codes
+    // Per ZPL spec: >; = Start Code C, >6 = switch to Code B (from C), >7 = switch to Code A (from B).
+    // Code A in mode N uses digit pairs: "52"→'T', "37"→'E', "51"→'S', "52"→'T' → "TEST".
+    // Display text should NOT contain any > prefix codes.
     let (img, text) = code128::encode_no_mode(">;382436>6CODE128>752375152", 100, 2)
         .expect("encode_no_mode failed");
     assert!(img.width() > 0);
@@ -44,6 +45,11 @@ fn code128_no_mode_strips_prefix_from_display() {
     assert!(
         text.contains("CODE128"),
         "display text should contain 'CODE128': {}",
+        text
+    );
+    assert!(
+        text.contains("TEST"),
+        "display text should contain 'TEST' (Code A pair-mode decoding of 52,37,51,52): {}",
         text
     );
 }

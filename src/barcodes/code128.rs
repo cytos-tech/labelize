@@ -291,28 +291,29 @@ pub fn encode_no_mode(
     height: i32,
     bar_width: i32,
 ) -> Result<(RgbaImage, String), String> {
-    // In no-mode, subset codes like >: >; >9 >0 etc. select subsets
-    // Only auto-optimize when an explicit start set prefix is given.
+    // In mode N, subset codes >9/>:/>; select the start subset, and >5/>6/>7 switch subsets.
+    // Mode N has no automatic optimization — explicit escape codes control everything.
     let mut codes: Vec<u8> = Vec::new();
     let mut text = String::new();
 
     let chars: Vec<char> = content.chars().collect();
     let mut i = 0;
 
-    // Determine requested start set from prefix
+    // Determine requested start set from prefix.
+    // Per ZPL spec: >9=Start Code A (103), >:=Start Code B (104), >;=Start Code C (105).
     let requested_set = if !chars.is_empty() && chars[0] == '>' && chars.len() > 1 {
         match chars[1] {
             ':' => {
                 i = 2;
-                Some('C')
+                Some('B') // >: = Start Code B (104)
             }
             ';' => {
                 i = 2;
-                Some('B')
+                Some('C') // >; = Start Code C (105)
             }
             '9' | '0' => {
                 i = 2;
-                Some('A')
+                Some('A') // >9 = Start Code A (103)
             }
             _ => None,
         }
@@ -320,26 +321,8 @@ pub fn encode_no_mode(
         None
     };
 
-    // Auto-detect optimal start set only when an explicit prefix was given.
-    // Mode N without prefix always starts in Code B per ZPL spec.
-    let auto_optimize = requested_set.is_some();
-    let mut lookahead = i;
-    while lookahead + 1 < chars.len() && chars[lookahead] == '>' && chars[lookahead + 1] == '8' {
-        lookahead += 2; // skip >8 (FNC1) when looking for digits
-    }
-    let digit_run = count_digits(&chars, lookahead);
-    let mut current_set = match requested_set {
-        Some(s) => {
-            if s != 'C' && digit_run >= 4 && auto_optimize {
-                'C' // Override to Code C for digit-heavy data
-            } else {
-                s
-            }
-        }
-        None => {
-            'B' // Mode N defaults to Code B
-        }
-    };
+    // Mode N uses the explicitly requested start set; no auto-optimization.
+    let mut current_set = requested_set.unwrap_or('B');
 
     let start_code = match current_set {
         'A' => CODE_A_START,
@@ -354,8 +337,8 @@ pub fn encode_no_mode(
         // Handle > prefix commands (subset switching)
         if chars[i] == '>' && i + 1 < chars.len() {
             let handled = match chars[i + 1] {
-                // Switch to Code C
-                ':' | '2' | '4' => {
+                // >5 = Switch to Code C (value 99), per ZPL spec table
+                ':' | '2' | '4' | '5' => {
                     if current_set != 'C' {
                         codes.push(CODE_C_SWITCH);
                         checksum += CODE_C_SWITCH as u32 * weight;
@@ -364,7 +347,7 @@ pub fn encode_no_mode(
                     }
                     true
                 }
-                // Switch to Code B
+                // >6 = Switch to Code B (value 100) from Code A or C, per ZPL spec table
                 ';' | '1' | '6' => {
                     if current_set != 'B' {
                         codes.push(CODE_B_SWITCH);
@@ -375,7 +358,7 @@ pub fn encode_no_mode(
                     true
                 }
                 // Switch to Code A
-                '9' | '0' | '3' | '5' => {
+                '9' | '0' | '3' => {
                     if current_set != 'A' {
                         codes.push(CODE_A_SWITCH);
                         checksum += CODE_A_SWITCH as u32 * weight;
@@ -391,13 +374,13 @@ pub fn encode_no_mode(
                     weight += 1;
                     true
                 }
-                // >7 = Code C switch (alternate). Skip prefix from display text.
+                // >7 = Switch to Code A (value 101) from Code B or C, per ZPL spec table
                 '7' => {
-                    if current_set != 'C' {
-                        codes.push(CODE_C_SWITCH);
-                        checksum += CODE_C_SWITCH as u32 * weight;
+                    if current_set != 'A' {
+                        codes.push(CODE_A_SWITCH);
+                        checksum += CODE_A_SWITCH as u32 * weight;
                         weight += 1;
-                        current_set = 'C';
+                        current_set = 'A';
                     }
                     true
                 }
@@ -406,18 +389,6 @@ pub fn encode_no_mode(
             if handled {
                 i += 2;
                 continue;
-            }
-        }
-
-        // Auto-optimize: if in Code A/B and there are 4+ consecutive digits, switch to C
-        // Only do this when an explicit start prefix was given (auto_optimize mode).
-        if auto_optimize && current_set != 'C' {
-            let digit_run = count_digits(&chars, i);
-            if digit_run >= 4 {
-                codes.push(CODE_C_SWITCH);
-                checksum += CODE_C_SWITCH as u32 * weight;
-                weight += 1;
-                current_set = 'C';
             }
         }
 
@@ -447,15 +418,36 @@ pub fn encode_no_mode(
                 }
             }
             'A' => {
-                let ch = chars[i];
-                text.push(ch);
-                let b = ch as u8;
-                if (32..=95).contains(&b) {
-                    b - 32
-                } else if b < 32 {
-                    b + 64
+                // Code A in mode N uses digit pairs (00-99) like Code C.
+                // Each pair XY encodes Code 128 value X*10+Y.
+                // Values 0-63 map to printable ASCII 32-95; values 64-95 map to control chars 0-31.
+                if i + 1 < chars.len() && chars[i].is_ascii_digit() && chars[i + 1].is_ascii_digit()
+                {
+                    let val = (chars[i] as u8 - b'0') * 10 + (chars[i + 1] as u8 - b'0');
+                    let ch = if val < 64 {
+                        char::from(val + 32) // printable: ASCII 32-95
+                    } else if val < 96 {
+                        char::from(val - 64) // control: ASCII 0-31 (not shown but encoded)
+                    } else {
+                        ' ' // special codes (96+): suppress from display
+                    };
+                    text.push(ch);
+                    i += 1; // extra increment; loop adds one more → net advance of 2
+                    val
                 } else {
-                    0
+                    // Non-digit data in Code A: fall back to Code B
+                    codes.push(CODE_B_SWITCH);
+                    checksum += CODE_B_SWITCH as u32 * weight;
+                    weight += 1;
+                    current_set = 'B';
+                    let ch = chars[i];
+                    text.push(ch);
+                    let b = ch as u8;
+                    if (32..=127).contains(&b) {
+                        b - 32
+                    } else {
+                        0
+                    }
                 }
             }
             _ => {

@@ -13,7 +13,7 @@
 ║ barcode128_mode_a              │ zpl  │    0.62% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_mode_d              │ zpl  │    0.62% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_mode_n              │ zpl  │    0.62% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
-║ barcode128_mode_n_cba_sets     │ zpl  │    0.38% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
+║ barcode128_mode_n_cba_sets     │ zpl  │    0.23% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_mode_u              │ zpl  │    0.62% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ barcode128_rotated             │ zpl  │    0.27% │      813x1626 │      813x1626 │ GOOD(<1%)    ║
 ║ bpost                          │ zpl  │    3.59% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
@@ -57,7 +57,7 @@
 ║ pnldpd                         │ zpl  │   10.15% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
 ║ pocztex                        │ zpl  │    3.37% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ porterbuddy                    │ zpl  │    6.36% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
-║ posteit                        │ zpl  │    6.29% │      813x1626 │      813x1626 │ MODERATE(<15%) ║
+║ posteit                        │ zpl  │    3.86% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ posten                         │ zpl  │    1.96% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ postnl                         │ zpl  │    3.67% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ purolator                      │ zpl  │    2.97% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
@@ -87,5 +87,5 @@
 ║ usps                           │ zpl  │    4.09% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ║ yodel                          │ zpl  │    3.54% │      813x1626 │      813x1626 │ MINOR(<5%)   ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║ Summary: 83 total │ 6 perfect │ 27 good │ 39 minor │ 11 moderate │ 0 high │ 0 skip │ 0 err
+║ Summary: 83 total │ 6 perfect │ 27 good │ 40 minor │ 10 moderate │ 0 high │ 0 skip │ 0 err
 ╚══════════════════════════════════════════════════════════════════════════════╝
