@@ -48,8 +48,7 @@ fn ensure_ref_png(path: &std::path::Path, content: &str, ext: &str) {
         let h = opts.label_height_mm / 25.4;
         labelary_client::labelary_render(content, opts.dpmm as u8, w, h)
             .map(|fetched| {
-                let normalized =
-                    labelary_client::pad_png_to_size(&fetched, CANVAS_W, CANVAS_H);
+                let normalized = labelary_client::pad_png_to_size(&fetched, CANVAS_W, CANVAS_H);
                 eprintln!(
                     "[bootstrap] {}: fetched from Labelary, normalized to {}×{}",
                     name, CANVAS_W, CANVAS_H

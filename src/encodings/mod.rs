@@ -77,6 +77,16 @@ fn cp850_char(b: u8) -> char {
         0xA3 => '\u{00FA}', // ú
         0xA4 => '\u{00F1}', // ñ
         0xA5 => '\u{00D1}', // Ñ
+        0xA6 => '\u{00AA}', // ª (feminine ordinal indicator)
+        0xA7 => '\u{00BA}', // º (masculine ordinal indicator)
+        0xA8 => '\u{00BF}', // ¿ (inverted question mark)
+        0xA9 => '\u{00AE}', // ® (registered sign)
+        0xAA => '\u{00AC}', // ¬ (not sign)
+        0xAB => '\u{00BD}', // ½ (vulgar fraction one half)
+        0xAC => '\u{00BC}', // ¼ (vulgar fraction one quarter)
+        0xAD => '\u{00A1}', // ¡ (inverted exclamation mark)
+        0xAE => '\u{00AB}', // « (left double angle quotation mark)
+        0xAF => '\u{00BB}', // » (right double angle quotation mark)
         0xB5 => '\u{00C1}', // Á
         0xD6 => '\u{00CE}', // Î
         _ => b as char,     // fallback

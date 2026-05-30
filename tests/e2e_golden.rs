@@ -29,23 +29,22 @@ fn auto_bootstrap_zpl(content: &str, path: &std::path::Path, name: &str) {
     let width_in = opts.label_width_mm / 25.4;
     let height_in = opts.label_height_mm / 25.4;
 
-    let png =
-        if let Some(fetched) =
-            labelary_client::labelary_render(content, opts.dpmm as u8, width_in, height_in)
-        {
-            let normalized = labelary_client::pad_png_to_size(&fetched, CANVAS_W, CANVAS_H);
-            eprintln!(
-                "[bootstrap] '{}': fetched from Labelary, normalized to {}×{}",
-                name, CANVAS_W, CANVAS_H
-            );
-            normalized
-        } else {
-            eprintln!(
-                "[bootstrap] '{}': Labelary unavailable — using renderer baseline ({}×{})",
-                name, CANVAS_W, CANVAS_H
-            );
-            render_helpers::render_zpl_to_png(content, opts)
-        };
+    let png = if let Some(fetched) =
+        labelary_client::labelary_render(content, opts.dpmm as u8, width_in, height_in)
+    {
+        let normalized = labelary_client::pad_png_to_size(&fetched, CANVAS_W, CANVAS_H);
+        eprintln!(
+            "[bootstrap] '{}': fetched from Labelary, normalized to {}×{}",
+            name, CANVAS_W, CANVAS_H
+        );
+        normalized
+    } else {
+        eprintln!(
+            "[bootstrap] '{}': Labelary unavailable — using renderer baseline ({}×{})",
+            name, CANVAS_W, CANVAS_H
+        );
+        render_helpers::render_zpl_to_png(content, opts)
+    };
 
     std::fs::create_dir_all(path.parent().unwrap()).ok();
     std::fs::write(path, &png).expect("write auto-generated golden PNG");
@@ -55,7 +54,10 @@ fn auto_bootstrap_zpl(content: &str, path: &std::path::Path, name: &str) {
 ///
 /// EPL is not supported by the Labelary API, so the renderer baseline is always used.
 fn auto_bootstrap_epl(content: &str, path: &std::path::Path, name: &str) {
-    eprintln!("[bootstrap] '{}': using renderer baseline for EPL (813×1626)", name);
+    eprintln!(
+        "[bootstrap] '{}': using renderer baseline for EPL (813×1626)",
+        name
+    );
     let opts = render_helpers::default_options();
     let png = render_helpers::render_epl_to_png(content, opts);
     std::fs::create_dir_all(path.parent().unwrap()).ok();
@@ -243,6 +245,10 @@ fn golden_dpdpl() {
 #[test]
 fn golden_ean13() {
     golden_zpl_with_tolerance("ean13", 3.0);
+}
+#[test]
+fn golden_cp850_hex_chars() {
+    golden_zpl("cp850_hex_chars");
 }
 #[test]
 fn golden_encodings_013() {

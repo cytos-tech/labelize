@@ -88,3 +88,102 @@ fn unknown_charset_passthrough() {
     let result = encodings::to_unicode_text("Test", 99).expect("conversion failed");
     assert_eq!(result, "Test");
 }
+
+#[test]
+fn cp850_0xa6_is_feminine_ordinal() {
+    let raw = hex::decode_escaped_string("_A6", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00AA}",
+        "CP850 0xA6 should be ª (feminine ordinal indicator)"
+    );
+}
+
+#[test]
+fn cp850_0xa7_is_masculine_ordinal() {
+    let raw = hex::decode_escaped_string("_A7", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00BA}",
+        "CP850 0xA7 should be º (masculine ordinal indicator)"
+    );
+}
+
+#[test]
+fn cp850_0xa8_is_inverted_question_mark() {
+    let raw = hex::decode_escaped_string("_A8", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00BF}",
+        "CP850 0xA8 should be ¿ (inverted question mark)"
+    );
+}
+
+#[test]
+fn cp850_0xa9_is_registered_sign() {
+    // In CP850 (charset 0), byte 0xA9 = ® (REGISTERED SIGN, U+00AE)
+    // This is the character emitted by ^FH_^FD_A9^FS in ZPL
+    let raw = hex::decode_escaped_string("_A9", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00AE}",
+        "CP850 0xA9 should be ® (registered sign)"
+    );
+}
+
+#[test]
+fn cp850_0xaa_is_not_sign() {
+    let raw = hex::decode_escaped_string("_AA", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(unicode, "\u{00AC}", "CP850 0xAA should be ¬ (not sign)");
+}
+
+#[test]
+fn cp850_0xab_is_one_half() {
+    let raw = hex::decode_escaped_string("_AB", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00BD}",
+        "CP850 0xAB should be ½ (vulgar fraction one half)"
+    );
+}
+
+#[test]
+fn cp850_0xac_is_one_quarter() {
+    let raw = hex::decode_escaped_string("_AC", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00BC}",
+        "CP850 0xAC should be ¼ (vulgar fraction one quarter)"
+    );
+}
+
+#[test]
+fn cp850_0xad_is_inverted_exclamation() {
+    let raw = hex::decode_escaped_string("_AD", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00A1}",
+        "CP850 0xAD should be ¡ (inverted exclamation mark)"
+    );
+}
+
+#[test]
+fn cp850_0xae_is_left_double_angle_quote() {
+    let raw = hex::decode_escaped_string("_AE", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00AB}",
+        "CP850 0xAE should be « (left double angle quotation mark)"
+    );
+}
+
+#[test]
+fn cp850_0xaf_is_right_double_angle_quote() {
+    let raw = hex::decode_escaped_string("_AF", b'_').expect("decode failed");
+    let unicode = encodings::to_unicode_text(&raw, 0).expect("conversion failed");
+    assert_eq!(
+        unicode, "\u{00BB}",
+        "CP850 0xAF should be » (right double angle quotation mark)"
+    );
+}
